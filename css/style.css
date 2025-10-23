@@ -1,0 +1,385 @@
+/* Import Google Font (e.g., Poppins) for a modern look */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- Base Styles and Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #00feba, #5b548a);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* --- Card Container --- */
+.card {
+    width: 90%;
+    max-width: 470px; 
+    background: linear-gradient(180deg, #1f1f3e, #2a2a5e);
+    border-radius: 20px;
+    padding: 40px 30px;
+    display: flex; 
+    flex-direction: column;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: max-width 0.4s ease-in-out;
+    overflow: hidden; 
+    min-height: fit-content;
+    padding-bottom: 40px; 
+}
+
+.card.expanded{
+    max-width: 800px; 
+    width: 95%; 
+}
+
+/* --- Search Bar --- */
+.search {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search input {
+    border: 0;
+    outline: 0;
+    background: #ebfffc;
+    color: #555;
+    padding: 10px 25px;
+    height: 50px;
+    flex: 1;
+    min-width: 0; 
+    border-radius: 30px;
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.search button {
+    border: 0;
+    outline: 0;
+    background: #ebfffc;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.search button:hover {
+    background: #d9e8e5;
+}
+
+.search button img {
+    width: 25px;
+    height: 25px;
+}
+
+/* Update the search to accommodate two buttons */
+.search {
+    /* Temporarily remove the margin-bottom to make space for city tags */
+    margin-bottom: 20px; 
+}
+
+/* Style for the new location button */
+.location-btn {
+    /* Style the location button similar to search, or make it distinct */
+    border: 0;
+    outline: 0;
+    background: #ebfffc;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    margin-right: 5px; /* Space between location and search button */
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.location-btn img {
+    width: 30px; /* Slightly smaller than search image */
+    height: 30px;
+}
+
+/* Style for the saved city tags */
+.saved-cities-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px; /* Space above the weather display */
+}
+
+.saved-city-tag {
+    background: rgba(255, 255, 255, 0.15); /* Semi-transparent white */
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+.saved-city-tag:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* --- Hourly Forecast Styles --- */
+.hourly-forecast h3,
+.daily-forecast h3 {
+    text-align: left;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 25px 0 15px 0;
+    padding-left: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+
+.hourly-scroll-container {
+    display: flex;
+    overflow-x: auto; /* KEY: Enables horizontal scrolling */
+    padding: 10px 0;
+    /* Optional: Hide the scrollbar but keep the functionality */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.hourly-scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.hourly-item {
+    min-width: 80px; /* Ensure items don't compress too much */
+    text-align: center;
+    padding: 10px;
+    margin-right: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    flex-shrink: 0; /* Important for scrolling */
+}
+
+.hourly-item img {
+    width: 40px;
+    height: 40px;
+    margin: 5px 0;
+}
+
+.hourly-temp {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* --- Daily Forecast Styles (List Format) --- */
+.daily-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.daily-item:last-child {
+    border-bottom: none; /* Clean up the last item */
+}
+
+.day {
+    font-weight: 500;
+    width: 50px; /* Fixed width for better alignment */
+    text-align: left;
+}
+
+.daily-item img {
+    width: 35px;
+    height: 35px;
+    margin: 0 10px;
+}
+
+.daily-temps {
+    font-weight: 600;
+    font-size: 16px;
+    text-align: right;
+    min-width: 100; 
+    width: 110;  
+}
+
+/* --- Positioning the Daily Forecast (Right Column) --- */
+.daily-forecast {
+    grid-column: 2 / 3; /* Spans from grid line 2 to 3 (the right column) */
+    grid-row: 1 / 2;    /* Stays in the first row (the top section) */
+    padding-top: 0px; 
+    margin-top: 60px;
+}
+
+/* --- Positioning the Hourly Forecast (Full Width at Bottom) --- */
+.hourly-forecast {
+    grid-column: 1 / 3; /* Spans from grid line 1 to 3 (the full width) */
+    grid-row: 4 / 5;    /* Placed in the second row (the bottom section) */
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.current-weather-main {
+    grid-column: 1 / 2; /* Stays in the left column */
+    grid-row: 1 / 2;    /* Stays in the first row (the top section) */
+    text-align: left;
+}
+
+/* Ensure the main weather icon is a high priority on the main view */
+.weather-icon {
+    width: 140px;
+    height: 140px;
+    margin-top: 20px; /* Add some space above the icon */
+    margin-bottom: 15px; 
+}
+
+/* --- Weather Display (State Management) --- */
+/* DEFAULT: Hide the weather content until data is loaded */
+.weather {
+    
+   
+    /* Apply Grid */
+    display: grid; 
+    /* Create 2 columns (Left and Right) */
+    grid-template-columns: 1fr 1fr; 
+    
+    /* Define rows for organization (Top section, Bottom section) */
+    grid-template-rows: auto auto; 
+    
+    gap: 20px 30px; /* Space between rows and columns */
+    padding: 0 10px;
+
+    display: none; 
+    transition: opacity 0.5s ease; 
+    text-align: left;
+}
+
+/* JS will add this class to show the data */
+.weather.active {
+    display: grid;
+}
+
+.current-weather-main .weather-icon {
+    display: block; 
+    width: 140px;
+    height: 140px;
+    margin-top: 0px;
+    margin-bottom: 20px; 
+}
+
+.current-weather-main h1.temp {
+    font-size: 80px;
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+.current-weather-main h2.city {
+    font-size: 45px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+/* --- Details Section (Humidity and Wind) --- */
+.details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    grid-column: 1 / 3; 
+    grid-row: 3 / 4; 
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+.col {
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
+
+.col img {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;   
+}
+
+.details .humidity,
+.details .wind {
+    font-size: 28px;
+    font-weight: 500;
+}
+
+.details p {
+    font-size: 14px;
+    color: #ccc;
+}
+
+/* --- Error/Loading States --- */
+.error {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 20px;
+    color: #ff6347; 
+    display: none; /* Hide by default */
+}
+
+.loading {
+    color: #00feba;
+    font-size: 20px;
+    margin-top: 30px;
+    display: none; /* Hide by default */
+}
+
+/* --- Media Query for Mobile Responsiveness (New Addition) --- */
+@media (max-width: 700px) {
+   
+   .weather{
+        display: flex; 
+        flex-direction: column; 
+        gap: 20px; 
+        padding: 0; 
+    }
+   
+   
+    .current-weather-main, .daily-forecast, .hourly-forecast {
+       grid-column: auto; 
+       grid-row: auto; 
+       width: 100%;
+       text-align: center;
+    }  
+    
+    
+
+    .current-weather-main .weather-icon {
+        margin: 0 auto 20px auto; /* Center the icon */
+    }
+
+    .details {
+        /* Keep details flex for humidity/wind side-by-side */
+        flex-direction: row; 
+        justify-content: space-around;
+        padding: 0;
+        margin-top: 30px;
+    }
+
+    .daily-forecast {
+        margin-top: 0; /* Remove extra margin on mobile */
+        padding-top: 10px;
+    }
+}

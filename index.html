@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="card">
+        <div class="search">
+          <input type="text" id="city-input" placeholder="Enter city, State, or Zip" spellcheck="false">
+            <button aria-label="Use current location" data-location-btn class="location-btn">
+                <img src="images/location.png" alt="Current Location icon"> 
+            </button>
+            <button aria-label="Search for weather" data-search-btn class="search-btn">
+                <img src="images/search.png" alt="Search icon">
+            </button>
+        </div>
+
+        <div class="saved-cities-container">
+            <button class="saved-city-tag" data-city-name="New York">New York</button>
+            <button class="saved-city-tag" data-city-name="London">London</button>
+        </div>
+        
+        <div class="weather" role="region" aria-label="Current Weather Details">
+            
+            <div class="current-weather-main">
+                <img src="images/clear.png" class="weather-icon" data-weather-icon alt="Current weather condition icon">
+                
+                <h1 class="temp" data-temp>--&deg;F</h1> 
+                <h2 class="city" data-city>City Name</h2>
+                
+                </div>
+            
+            <div class="daily-forecast" role="list" aria-label="7 Day Forecast">
+                <h3>7-Day Forecast</h3>
+                <div class="daily-item">
+                    <p class="day">Mon</p>
+                    <img src="images/rain.png" alt="Rain icon">
+                    <p class="daily-temps">Hi 65&deg; / Lo 50&deg;</p>
+                </div>
+            </div>
+
+            <div class="details" data-details-full-width>
+                <figure class="col">
+                    <img src="images/humidity.png" alt="Droplet icon for humidity">
+                    <figcaption>
+                        <p class="humidity" data-humidity>--%</p>
+                        <p>Humidity</p>
+                    </figcaption>
+                </figure>
+                
+                <figure class="col">
+                    <img src="images/wind.png" alt="Wind stream icon">
+                    <figcaption>
+                        <p class="wind" data-wind>-- mph</p>
+                        <p>Wind Speed</p>
+                    </figcaption>
+                </figure>
+            </div>
+            <div class="hourly-forecast" role="list" aria-label="Hourly Temperature Forecast">
+                <h3>Hourly Forecast</h3>
+                    <div class="hourly-scroll-container">
+                        <div class="hourly-item">
+                            <p class="hour">2 PM</p>
+                            <img src="images/clear.png" alt="Sunny icon">
+                            <p class="hourly-temp">78&deg;</p>
+                        </div>
+                    </div>
+            </div>
+
+        </div> 
+        <div class="error" data-error-msg>Invalid city name or error fetching data.</div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
