@@ -1,3 +1,10 @@
+// National Weather Service (NWS) API Constants
+
+const NWS_API_BASE = "https://api.weather.gov/";
+const NWS_USER_AGENT = "WeatherApp/v1.0 (b.keller2890@gmail.com)"; 
+
+// OpenWeatherMap API Key and Base URLs
+
 const apiKey = "fca1ee0d8fe311426b14aae80fdb3c2d";
 
 const geoApiUrl = "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" + apiKey + "&q="; 
@@ -11,6 +18,12 @@ const savedCitiesContainer = document.querySelector(".saved-cities-container");
 const weatherIcon = document.querySelector(".weather-icon");
 const dailyForecastContainer = document.querySelector(".daily-forecast");
 const hourlyForecastContainer = document.querySelector(".hourly-scroll-container");
+
+// Severe Weather Alert Banner DOM Element: 
+
+// make sure that you have the HTML element with class 'severe-alert-banner' in your HTML file.
+
+const severeAlertBanner = document.querySelector(".severe-alert-banner");
 
 // Mappings for US States and Country Codes
 // This is a simplified mapping. For a complete solution, consider using a library or API.  
@@ -143,6 +156,68 @@ function handleSearchError() {
 
 // needed: few clouds, scattered clouds, broken clouds, overcast
 // need variety for different cloud conditions
+
+/**
+ * NWS Step 1 & 2: Fetches NWS Grid ID and then fetches active alerts for that location.
+ * @param {number} lat - Latitude of the location.
+ * @param {number} lon - Longitude of the location.
+ */
+async function handleNwsAlerts(lat, lon) {
+    // 1. Clear previous alerts and hide the banner
+    if (severeAlertBanner) {
+        severeAlertBanner.innerHTML = '';
+        severeAlertBanner.style.display = 'none';
+    } else {
+        // Guard clause: ensure the element exists
+        return;
+    }
+
+    try {
+        // Step 1: Get Grid Point for the coordinates
+        const pointsUrl = `${NWS_API_BASE}/points/${lat},${lon}`;
+        const pointsResponse = await fetch(pointsUrl, {
+            headers: { 'User-Agent': NWS_USER_AGENT }
+        });
+
+        if (!pointsResponse.ok) throw new Error("Failed to get NWS grid point.");
+        
+        const pointsData = await pointsResponse.json();
+        // NWS provides a forecastZone for alerts (e.g., 'VAZ054')
+        const forecastZone = pointsData.properties.forecastZone.split('/').pop(); 
+
+        // Step 2: Fetch Alerts for the Zone
+        const alertsUrl = `${NWS_API_BASE}/alerts/active/zone/${forecastZone}`;
+        const alertsResponse = await fetch(alertsUrl, {
+            headers: { 'User-Agent': NWS_USER_AGENT }
+        });
+
+        if (!alertsResponse.ok) throw new Error("Failed to fetch NWS alerts.");
+
+        const alertsData = await alertsResponse.json();
+        
+        // Step 3: Display the Alerts
+        if (alertsData.features.length > 0) {
+            const alert = alertsData.features[0].properties; // Use the first (usually most urgent)
+            const headline = alert.event; // e.g., "Severe Thunderstorm Warning"
+            
+            const alertHTML = `
+                <div class="alert-item">
+                    <p class="alert-headline">🚨 **SEVERE ALERT:** ${headline}</p>
+                    <p class="alert-description">${alert.description}</p>
+                    <p class="alert-severity">Severity: ${alert.severity}</p>
+                </div>
+            `;
+            severeAlertBanner.innerHTML = alertHTML;
+            severeAlertBanner.style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error("NWS Alert Error:", error.message);
+        // Fail silently or show a generic message for alert errors
+    }
+}
+
+
 
 function getWeatherIcon(condition) {
     switch (condition) {
@@ -295,7 +370,7 @@ async function checkWeather(input, lat = null, lon = null) {
         }
     } else {
         // --- 1B: Reverse Geocoding (Lat/Lon Input) ---
-        // 🎯 FIX 2: When lat/lon are provided, perform reverse geocoding to get location names
+       
         const reverseGeoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
         const reverseResponse = await fetch(reverseGeoUrl);
 
@@ -334,6 +409,17 @@ async function checkWeather(input, lat = null, lon = null) {
         const forecastData = await forecastResponse.json();
         // Assuming displayForecasts function is correctly defined elsewhere
         displayForecasts(forecastData); 
+    }
+
+    // Handle NWS Severe Weather Alerts
+    if(countryCode === 'US') {
+        handleNwsAlerts(lat, lon);   
+    }
+    else{
+        if (severeAlertBanner) {
+            severeAlertBanner.innerHTML = '';
+            severeAlertBanner.style.display = 'none';
+        }
     }
     
     if (weatherResponse.status !== 200) {

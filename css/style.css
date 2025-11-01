@@ -141,6 +141,61 @@ body {
     background: rgba(255, 255, 255, 0.3);
 }
 
+/* ========================================= */
+/* ⚠️ NWS Severe Alert Banner Styles */
+/* ========================================= */
+
+.severe-alert-banner {
+    /* Critical: Set a high-alert color scheme */
+    background-color: #ffde00; /* Bright yellow for visibility */
+    color: #1f1f3e; /* Dark text for high contrast */
+    
+    /* Strong border to emphasize urgency */
+    border: 3px solid #cc0000; 
+    border-radius: 10px;
+    
+    /* Layout and Spacing */
+    padding: 15px 20px;
+    margin-bottom: 30px; /* Crucial: Space it out from the content below */
+    
+    /* Ensure it stands out */
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+    text-align: left;
+    font-weight: 500;
+}
+
+/* Style for the alert content injected by JavaScript */
+.severe-alert-banner .alert-item {
+    line-height: 1.4;
+}
+
+.severe-alert-banner .alert-headline {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #cc0000; /* Use a stark red for the main alert text */
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure the emoji is styled correctly */
+.severe-alert-banner .alert-headline .emoji {
+    margin-right: 10px;
+}
+
+.severe-alert-banner .alert-description {
+    font-size: 1em;
+    margin-bottom: 5px;
+}
+
+.severe-alert-banner .alert-severity {
+    font-size: 0.9em;
+    font-style: italic;
+    opacity: 0.8;
+}
+
 /* --- Hourly Forecast Styles --- */
 .hourly-forecast h3,
 .daily-forecast h3 {
