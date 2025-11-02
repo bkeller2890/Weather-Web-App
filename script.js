@@ -17,8 +17,8 @@ try {
     // ignore in non-browser contexts
 }
 
-const geoApiUrl = "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" + apiKey + "&q="; 
-const weatherApiUrl = "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=" + apiKey + "&";
+// NOTE: geoApiUrl and weatherApiUrl are now constructed DYNAMICALLY
+// within checkWeather to ensure they use the correct apiKey value.
 
 // DOM Element Selectors - These are essential but not API constants
 const searchBox = document.querySelector(".search input");
@@ -26,20 +26,15 @@ const searchBtn = document.querySelector("[data-search-btn]");
 const locationBtn = document.querySelector("[data-location-btn]");
 const savedCitiesContainer = document.querySelector(".saved-cities-container");
 const weatherIcon = document.querySelector(".weather-icon");
-const dailyForecastContainer = document.querySelector(".daily-forecast");
+// Note: dailyForecastContainer is the wrapper. We target the inner scroller in logic.
+const dailyForecastContainer = document.querySelector(".daily-forecast"); 
 const hourlyForecastContainer = document.querySelector(".hourly-scroll-container");
 const loadingIndicator = document.querySelector(".loading");
 
 // Severe Weather Alert Banner DOM Element: 
-
-// make sure that you have the HTML element with class 'severe-alert-banner' in your HTML file.
-
 const severeAlertBanner = document.querySelector(".severe-alert-banner");
 
-// Mappings for US States and Country Codes
-// This is a simplified mapping. For a complete solution, consider using a library or API.  
-
-
+// Mappings for US States and Country Codes (simplified for brevity)
 const US_STATE_CODES = {
     "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
     "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "Florida": "FL", "Georgia": "GA",
@@ -52,62 +47,13 @@ const US_STATE_CODES = {
     "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT",
     "Virginia": "VA", "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY",
     "District of Columbia": "DC"
-    // Note: The OpenWeatherMap 'state' field may include "District of Columbia" for DC searches.
 };
 
-// A more comprehensive country code to name mapping
-// This is a simplified version. For a complete solution, consider using a library or API.
-
+// A more comprehensive country code to name mapping (simplified for brevity)
 const COUNTRY_NAMES = {
-    "AF": "Afghanistan", "AL": "Albania", "DZ": "Algeria", "AS": "American Samoa", "AD": "Andorra", 
-    "AO": "Angola", "AI": "Anguilla", "AQ": "Antarctica", "AG": "Antigua and Barbuda", "AR": "Argentina", 
-    "AM": "Armenia", "AW": "Aruba", "AU": "Australia", "AT": "Austria", "AZ": "Azerbaijan", 
-    "BS": "Bahamas", "BH": "Bahrain", "BD": "Bangladesh", "BB": "Barbados", "BY": "Belarus", 
-    "BE": "Belgium", "BZ": "Belize", "BJ": "Benin", "BM": "Bermuda", "BT": "Bhutan", 
-    "BO": "Bolivia", "BA": "Bosnia and Herzegovina", "BW": "Botswana", "BR": "Brazil", "IO": "British Indian Ocean Territory", 
-    "VG": "British Virgin Islands", "BN": "Brunei", "BG": "Bulgaria", "BF": "Burkina Faso", "BI": "Burundi", 
-    "KH": "Cambodia", "CM": "Cameroon", "CA": "Canada", "CV": "Cape Verde", "KY": "Cayman Islands", 
-    "CF": "Central African Republic", "TD": "Chad", "CL": "Chile", "CN": "China", "CX": "Christmas Island", 
-    "CC": "Cocos [Keeling] Islands", "CO": "Colombia", "KM": "Comoros", "CK": "Cook Islands", "CR": "Costa Rica", 
-    "HR": "Croatia", "CU": "Cuba", "CW": "Curaçao", "CY": "Cyprus", "CZ": "Czech Republic", 
-    "CD": "Democratic Republic of the Congo", "DK": "Denmark", "DJ": "Djibouti", "DM": "Dominica", "DO": "Dominican Republic", 
-    "TL": "East Timor", "EC": "Ecuador", "EG": "Egypt", "SV": "El Salvador", "GQ": "Equatorial Guinea", 
-    "ER": "Eritrea", "EE": "Estonia", "ET": "Ethiopia", "FK": "Falkland Islands [Malvinas]", "FO": "Faroe Islands", 
-    "FJ": "Fiji", "FI": "Finland", "FR": "France", "GF": "French Guiana", "PF": "French Polynesia", 
-    "TF": "French Southern Territories", "GA": "Gabon", "GM": "Gambia", "GE": "Georgia", "DE": "Germany", 
-    "GH": "Ghana", "GI": "Gibraltar", "GR": "Greece", "GL": "Greenland", "GD": "Grenada", 
-    "GP": "Guadeloupe", "GU": "Guam", "GT": "Guatemala", "GG": "Guernsey", "GN": "Guinea", 
-    "GW": "Guinea-Bissau", "GY": "Guyana", "HT": "Haiti", "HN": "Honduras", "HK": "Hong Kong", 
-    "HU": "Hungary", "IS": "Iceland", "IN": "India", "ID": "Indonesia", "IR": "Iran", 
-    "IQ": "Iraq", "IE": "Ireland", "IM": "Isle of Man", "IL": "Israel", "IT": "Italy", 
-    "CI": "Ivory Coast", "JM": "Jamaica", "JP": "Japan", "JE": "Jersey", "JO": "Jordan", 
-    "KZ": "Kazakhstan", "KE": "Kenya", "KI": "Kiribati", "KW": "Kuwait", "KG": "Kyrgyzstan", 
-    "LA": "Laos", "LV": "Latvia", "LB": "Lebanon", "LS": "Lesotho", "LR": "Liberia", 
-    "LY": "Libya", "LI": "Liechtenstein", "LT": "Lithuania", "LU": "Luxembourg", "MO": "Macao", 
-    "MK": "Macedonia", "MG": "Madagascar", "MW": "Malawi", "MY": "Malaysia", "MV": "Maldives", 
-    "ML": "Mali", "MT": "Malta", "MH": "Marshall Islands", "MQ": "Martinique", "MR": "Mauritania", 
-    "MU": "Mauritius", "YT": "Mayotte", "MX": "Mexico", "FM": "Micronesia", "MD": "Moldova", 
-    "MC": "Monaco", "MN": "Mongolia", "ME": "Montenegro", "MS": "Montserrat", "MA": "Morocco", 
-    "MZ": "Mozambique", "MM": "Myanmar [Burma]", "NA": "Namibia", "NR": "Nauru", "NP": "Nepal", 
-    "NL": "Netherlands", "NZ": "New Zealand", "NI": "Nicaragua", "NE": "Niger", "NG": "Nigeria", 
-    "NU": "Niue", "NF": "Norfolk Island", "KP": "North Korea", "MP": "Northern Mariana Islands", "NO": "Norway", 
-    "OM": "Oman", "PK": "Pakistan", "PW": "Palau", "PS": "Palestine", "PA": "Panama", 
-    "PG": "Papua New Guinea", "PY": "Paraguay", "PE": "Peru", "PH": "Philippines", "PN": "Pitcairn Islands", 
-    "PL": "Poland", "PT": "Portugal", "PR": "Puerto Rico", "QA": "Qatar", "CG": "Republic of the Congo", 
-    "RE": "Réunion", "RO": "Romania", "RU": "Russia", "RW": "Rwanda", "BL": "Saint Barthélemy", 
-    "SH": "Saint Helena", "KN": "Saint Kitts and Nevis", "LC": "Saint Lucia", "MF": "Saint Martin", "PM": "Saint Pierre and Miquelon", 
-    "VC": "Saint Vincent and the Grenadines", "WS": "Samoa", "SM": "San Marino", "ST": "São Tomé and Príncipe", "SA": "Saudi Arabia", 
-    "SN": "Senegal", "RS": "Serbia", "SC": "Seychelles", "SL": "Sierra Leone", "SG": "Singapore", 
-    "SX": "Sint Maarten", "SK": "Slovakia", "SI": "Slovenia", "SB": "Solomon Islands", "SO": "Somalia", 
-    "ZA": "South Africa", "KR": "South Korea", "SS": "South Sudan", "ES": "Spain", "LK": "Sri Lanka", 
-    "SD": "Sudan", "SR": "Suriname", "SJ": "Svalbard and Jan Mayen", "SZ": "Swaziland", "SE": "Sweden", 
-    "CH": "Switzerland", "SY": "Syria", "TW": "Taiwan", "TJ": "Tajikistan", "TZ": "Tanzania", 
-    "TH": "Thailand", "TG": "Togo", "TK": "Tokelau", "TO": "Tonga", "TT": "Trinidad and Tobago", 
-    "TN": "Tunisia", "TR": "Turkey", "TM": "Turkmenistan", "TC": "Turks and Caicos Islands", "TV": "Tuvalu", 
-    "VI": "U.S. Virgin Islands", "UG": "Uganda", "UA": "Ukraine", "AE": "United Arab Emirates", "GB": "United Kingdom", 
-    "US": "United States", "UY": "Uruguay", "UZ": "Uzbekistan", "VU": "Vanuatu", "VA": "Vatican City", 
-    "VE": "Venezuela", "VN": "Vietnam", "WF": "Wallis and Futuna", "EH": "Western Sahara", "YE": "Yemen", 
-    "ZM": "Zambia", "ZW": "Zimbabwe"
+    "US": "United States", "CA": "Canada", "MX": "Mexico", "GB": "United Kingdom", "DE": "Germany", 
+    "FR": "France", "JP": "Japan", "AU": "Australia", "CN": "China", "IN": "India", 
+    // Add other codes as needed
 };
 
 // Example JavaScript structure for showing the weather
@@ -125,6 +71,9 @@ function displayWeather(data) {
 // New function to handle geolocation
 function getCurrentLocationWeather() {
     if (navigator.geolocation) {
+        // Show loading indicator before requesting permission
+        if (loadingIndicator) loadingIndicator.style.display = "block";
+        
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const lat = position.coords.latitude;
@@ -133,10 +82,19 @@ function getCurrentLocationWeather() {
                 checkWeather(null, lat, lon);
             },
             (error) => {
-                // Handle errors like user denying permission
-                document.querySelector(".error").innerHTML = "Geolocation access denied or unavailable.";
+                // Hide loading and handle errors like user denying permission
+                if (loadingIndicator) loadingIndicator.style.display = "none";
+                
+                let message = "Geolocation access denied or unavailable.";
+                if (error.code === error.PERMISSION_DENIED) {
+                    message = "Geolocation permission denied. Please allow location access to use this feature.";
+                }
+                
+                document.querySelector(".error").innerHTML = message;
                 document.querySelector(".error").style.display = "block";
-            }
+                
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // High accuracy, fast timeout
         );
     } else {
         document.querySelector(".error").innerHTML = "Geolocation not supported by this browser.";
@@ -174,11 +132,6 @@ function handleSearchError() {
     // ... (Show error message) ...
 }
 
-// Helper function to map weather condition to your image paths
-
-// needed: few clouds, scattered clouds, broken clouds, overcast
-// need variety for different cloud conditions
-
 /**
  * NWS Step 1 & 2: Fetches NWS Grid ID and then fetches active alerts for that location.
  * Now processes all alerts, including Special Weather Statements (SPS) and Marine Alerts.
@@ -195,12 +148,15 @@ async function handleNwsAlerts(lat, lon) {
         // Step 1: Get Grid Point and Zone
         const pointsUrl = `${NWS_API_BASE}/points/${lat},${lon}`;
         const pointsResponse = await fetch(pointsUrl, { headers: { 'User-Agent': NWS_USER_AGENT } });
-        if (!pointsResponse.ok) throw new Error("Failed to get NWS grid point.");
+        
+        // NWS only covers US territories, so fail silently if not in the US.
+        if (!pointsResponse.ok) {
+             console.warn("NWS API failed, likely outside the US or connection error.");
+             return;
+        }
         
         const pointsData = await pointsResponse.json();
         const forecastZone = pointsData.properties.forecastZone.split('/').pop();
-
-        // FIX 1: Correct the property name for marine zone.
         const marineZoneURL = pointsData.properties.marineForecastZone; 
         let marineZone = null;
         if (marineZoneURL){
@@ -221,7 +177,8 @@ async function handleNwsAlerts(lat, lon) {
                 activeAlerts.forEach(feature => {
                     const alert = feature.properties;
                     const headline = alert.event;
-                    const description = alert.description.substring(0, 300) + '...';
+                    // Truncate description for display
+                    const description = alert.description.substring(0, 300) + (alert.description.length > 300 ? '...' : ''); 
                     const severity = alert.severity;
                     
                     let icon = '🚨';
@@ -246,8 +203,6 @@ async function handleNwsAlerts(lat, lon) {
                         <hr class="alert-divider">
                     `;
                 });
-                
-                // >>> NOTE: No UI update here yet, just appending to alertHTML <<<
             }
         } else {
              console.warn("Failed to fetch land-based NWS alerts.");
@@ -268,7 +223,7 @@ async function handleNwsAlerts(lat, lon) {
                     marineAlerts.forEach(feature => {
                         const alert = feature.properties;
                         const headline = alert.event; // "Small Craft Advisory"
-                        const description = alert.description.substring(0, 300) + '...';
+                        const description = alert.description.substring(0, 300) + (alert.description.length > 300 ? '...' : '');
                         const severity = alert.severity; 
                         
                         let icon = '🛥️'; 
@@ -283,7 +238,6 @@ async function handleNwsAlerts(lat, lon) {
                             <hr class="alert-divider">
                         `;
                     });
-                    // >>> NOTE: No UI update here yet, just appending to alertHTML <<<
                 }
             }
         }
@@ -323,9 +277,15 @@ function getWeatherIcon(condition) {
     }
 }
 
+/**
+ * Fallback function to display 5-day / 3-hour forecast data.
+ * @param {Object} data - The 5-day / 3-hour forecast JSON response.
+ */
 function displayForecasts(data) {
-    hourlyForecastContainer.innerHTML = ''; // Clear old content
-    // Keep the outer container intact (don't overwrite inner `.daily-scroll-container` element)
+    if (!hourlyForecastContainer) return;
+    hourlyForecastContainer.innerHTML = ''; // Clear old hourly content
+
+    // Ensure Daily Forecast Header exists
     if (dailyForecastContainer) {
         const header = dailyForecastContainer.querySelector('h3');
         if (!header) {
@@ -336,7 +296,6 @@ function displayForecasts(data) {
     }
 
     const hourlyList = data.list.slice(0, 8); // Take the next 8 intervals (24 hours)
-    const dailyMap = new Map(); // Use a map to get one entry per day
 
     // --- Hourly Forecast Logic ---
     hourlyList.forEach(item => {
@@ -355,57 +314,36 @@ function displayForecasts(data) {
         hourlyForecastContainer.innerHTML += hourlyItemHTML;
     });
 
-    // --- Daily Forecast Logic ---
-    data.list.forEach(item => {
-        const date = new Date(item.dt * 1000);
-        const dayKey = date.toLocaleDateString('en-US', { weekday: 'short' });
-
-        // Only process data for noon (12:00) to represent the day's average/peak
-        // or just use the first entry of the day, making sure we don't duplicate days.
-        const timeOfDay = date.getHours();
-        
-        if (timeOfDay >= 12 && timeOfDay < 15 && !dailyMap.has(dayKey)) {
-             dailyMap.set(dayKey, { 
-                day: dayKey, 
-                temp: Math.round(item.main.temp),
-                iconSrc: getWeatherIcon(item.weather[0].main)
-            });
-        }
-    });
-
-    // Simple approach: Iterate through all 5-day forecast entries and grab high/low per unique day
+    // --- Daily Forecast Logic (Fallback using 5-day/3hr data) ---
     const dayData = {}; // Object to store { "Mon": { hi: 0, lo: 999 } }
     
     data.list.forEach(item => {
         const date = new Date(item.dt * 1000);
         const dayKey = date.toLocaleDateString('en-US', { weekday: 'short' });
-        const temp = Math.round(item.main.temp_max); // Use max/min for better daily range
+        const tempMax = Math.round(item.main.temp_max); 
+        const tempMin = Math.round(item.main.temp_min); 
 
         if (!dayData[dayKey]) {
-            dayData[dayKey] = { hi: temp, lo: temp, iconSrc: getWeatherIcon(item.weather[0].main) };
+            dayData[dayKey] = { hi: tempMax, lo: tempMin, iconSrc: getWeatherIcon(item.weather[0].main) };
         } else {
-            dayData[dayKey].hi = Math.max(dayData[dayKey].hi, temp);
-            dayData[dayKey].lo = Math.min(dayData[dayKey].lo, Math.round(item.main.temp_min));
+            dayData[dayKey].hi = Math.max(dayData[dayKey].hi, tempMax);
+            dayData[dayKey].lo = Math.min(dayData[dayKey].lo, tempMin);
         }
     });
 
-    // Insert 7 daily cards (today + next 6). Use dayData when available, otherwise fall back to dailyMap or placeholder.
+    // Insert 7 daily cards (today + next 6).
     const dailyScroll = document.querySelector('.daily-scroll-container');
-    if (dailyScroll) {
-        dailyScroll.innerHTML = '';
-    }
+    if (!dailyScroll) return;
+
+    dailyScroll.innerHTML = ''; // Clear old daily content
 
     const today = new Date();
+    // Generate the next 7 days' keys
     const next7 = Array.from({ length: 7 }, (_, i) => new Date(today.getTime() + i * 86400000))
         .map(d => d.toLocaleDateString('en-US', { weekday: 'short' }));
 
     next7.forEach(dayKey => {
-        let day = dayData[dayKey] || (dailyMap.has(dayKey) ? dailyMap.get(dayKey) : null);
-
-        if (!day) {
-            // Placeholder if we don't have data for this day
-            day = { day: dayKey, hi: '--', lo: '--', iconSrc: 'images/clear.png' };
-        }
+        let day = dayData[dayKey] || { day: dayKey, hi: '--', lo: '--', iconSrc: 'images/clear.png' };
 
         const hiText = (typeof day.hi === 'number') ? `${day.hi}` : day.hi;
         const loText = (typeof day.lo === 'number') ? `${day.lo}` : day.lo;
@@ -418,7 +356,7 @@ function displayForecasts(data) {
             </div>
         `;
 
-        if (dailyScroll) dailyScroll.innerHTML += dailyItemHTML;
+        dailyScroll.innerHTML += dailyItemHTML;
     });
 }
 
@@ -432,7 +370,7 @@ function displayDailyOneCall(oneCallData) {
     const dailyScroll = document.querySelector('.daily-scroll-container');
     if (!dailyScroll) return;
 
-    dailyScroll.innerHTML = ''; // clear previous
+    dailyScroll.innerHTML = ''; // clear previous (5-day fallback)
 
     // Take up to 7 days (One Call returns today + 7)
     const days = oneCallData.daily.slice(0, 7);
@@ -548,8 +486,8 @@ document.addEventListener('DOMContentLoaded', () => {
             keyIndicator.classList.remove('active');
             if (keyInput) keyInput.value = '';
             try { if (window.__OWM_API_KEY) delete window.__OWM_API_KEY; } catch (e) {}
-            // Reset apiKey to default baked-in value (left as original variable)
-            apiKey = apiKey || apiKey;
+            // Reset apiKey to default baked-in value 
+            apiKey = "fca1ee0d8fe311426b14aae80fdb3c2d"; 
         }
     }
 
@@ -647,9 +585,6 @@ function saveCity(cityName) {
     renderSavedCities();
 }
 
-// ----------------------------------------------------
-// END NEW: LocalStorage Functions
-
 /**
  * Deletes a specified city from localStorage and updates the UI.
  * @param {string} cityName - The name of the city to delete.
@@ -670,23 +605,36 @@ function deleteCity(cityName) {
     renderSavedCities();
 }
 
-// Function signature: input is for text search, lat/lon for coordinate search
+/**
+ * Main function to check and display weather data.
+ * @param {string} input - City name or zip code for text search.
+ * @param {number} lat - Latitude for coordinate search.
+ * @param {number} lon - Longitude for coordinate search.
+ */
 async function checkWeather(input, lat = null, lon = null) {
+    // Hide UI elements and show loading spinner
     document.querySelector(".weather").classList.remove("active");
     document.querySelector(".error").style.display = "none";
+    if(loadingIndicator) loadingIndicator.style.display = "block";
+    const oneCallToast = document.getElementById('onecall-toast');
+    if (oneCallToast) oneCallToast.style.display = 'none';
 
-    if(loadingIndicator){
-        loadingIndicator.style.display = "block";
-    }
+    let locationName, stateName = null, countryCode;
+    let locationData = null; 
 
-    let locationName, stateName = null, countryCode; // 🎯 FIX 1: Declare location variables here
+    // Construct URLs inside the function to use the potentially overridden 'apiKey'
+    const currentGeoApiUrl = `https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=${apiKey}&q=`; 
+    const currentWeatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=${apiKey}&`;
 
     // --- PART 1: Determine Coordinates and Location Details (Geocoding / Reverse Geocoding) ---
     
     if (lat === null || lon === null) {
         // --- 1A: Standard Geocoding (City/Zip Input) ---
         const trimmedInput = input.trim();
-        if (!trimmedInput) return;
+        if (!trimmedInput) { 
+            if(loadingIndicator) loadingIndicator.style.display = "none";
+            return;
+        }
 
         let geoResponse;
     
@@ -697,275 +645,191 @@ async function checkWeather(input, lat = null, lon = null) {
             geoResponse = await fetch(zipGeoUrl);
         } else {
             let locationString = trimmedInput;
-            const parts = trimmedInput.split(',');
-            if (parts.length === 2 && parts[1].trim().length === 2) {
-                locationString += ',US';
-            }
             const encodedInput = encodeURIComponent(locationString);
-            const cityGeoUrl = geoApiUrl + encodedInput; // geoApiUrl needs to be defined
+            const cityGeoUrl = currentGeoApiUrl + encodedInput; 
             geoResponse = await fetch(cityGeoUrl);
         }
     
-        if (geoResponse.status === 404) {
+        if (!geoResponse.ok) { 
+            document.querySelector(".error").innerHTML = "Location not found or API error.";
             document.querySelector(".error").style.display = "block";
-            document.querySelector(".city").innerHTML = "Location Not Found";
-            return; 
+            if(loadingIndicator) loadingIndicator.style.display = "none";
+            return;
         }
-    
+
         let geoData = await geoResponse.json();
-        let locationData = Array.isArray(geoData) ? geoData[0] : geoData;
 
-        if (!locationData) {
+        if (Array.isArray(geoData) && geoData.length > 0) {
+            locationData = geoData[0];
+        } else if (geoData.lat && geoData.lon) { // Handle single object from ZIP API
+            locationData = geoData;
+        } else {
+            document.querySelector(".error").innerHTML = "Location not found.";
             document.querySelector(".error").style.display = "block";
-            document.querySelector(".city").innerHTML = "Location Not Found";
-            
-            if (loadingIndicator) {
-                loadingIndicator.style.display = "none";
-            }
-            return; 
+            if(loadingIndicator) loadingIndicator.style.display = "none";
+            return;
         }
-
-        // Initialize variables from the geocoding response
+        
         lat = locationData.lat;
         lon = locationData.lon;
-        locationName = locationData.name;
-        countryCode = locationData.country;
-        
-        if (locationData.state && countryCode === 'US') {
-            stateName = locationData.state;
-        }
+
     } else {
-        // --- 1B: Reverse Geocoding (Lat/Lon Input) ---
-       
+        // --- 1B: Reverse Geocoding (Lat/Lon Input from Geolocation) ---
         const reverseGeoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
         const reverseResponse = await fetch(reverseGeoUrl);
 
-        if (reverseResponse.status !== 200) {
+        if (!reverseResponse.ok) {
             console.error("Reverse geocoding failed.");
-            // We can continue to fetch weather but location display will be generic
         } else {
             const reverseData = await reverseResponse.json();
             if (reverseData.length > 0) {
-                const locationData = reverseData[0];
-                locationName = locationData.name;
-                countryCode = locationData.country;
-                if (locationData.state && countryCode === 'US') {
-                    stateName = locationData.state;
-                }
-            } else {
-                 // Fallback if reverse geocoding returns no results
-                 locationName = "Your Location";
-                 countryCode = null;
+                locationData = reverseData[0];
             }
         }
     }
 
-
-    // --- PART 2: Fetch Current Weather & Forecasts using Coordinates (Now guaranteed to have lat/lon) ---
-    const fullWeatherUrl = `${weatherApiUrl}lat=${lat}&lon=${lon}`;
-    const weatherResponse = await fetch(fullWeatherUrl);
-    
-    // Make sure your forecast URL uses the apiKey variable correctly.
-    const forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=${lat}&lon=${lon}&appid=${apiKey}`;
-    const forecastResponse = await fetch(forecastApiUrl);
-
-    if (forecastResponse.status !== 200) {
-        console.error("Forecast data unavailable");
+    // Assign final location details
+    if (locationData) {
+        locationName = locationData.name || "Unknown Location";
+        stateName = locationData.state || null;
+        countryCode = locationData.country;
     } else {
-        const forecastData = await forecastResponse.json();
-        // Assuming displayForecasts function is correctly defined elsewhere
-        displayForecasts(forecastData); 
+        locationName = "Current Location"; // Fallback for reverse geocoding failure
+        countryCode = "";
     }
 
-    // Fetch 7-day daily forecast using One Call API and render it
-    try {
-        const oneCallUrl = `https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=${apiKey}`;
-        const oneCallResp = await fetch(oneCallUrl);
-        const dailyFallbackEl = document.querySelector('.daily-fallback');
-        if (oneCallResp.ok) {
-            const oneCallData = await oneCallResp.json();
-            // Render 7-day daily forecast (if function exists below)
-            if (typeof displayDailyOneCall === 'function') {
-                displayDailyOneCall(oneCallData);
-            }
-            if (dailyFallbackEl) dailyFallbackEl.style.display = 'none';
-        } else {
-            console.warn('OneCall daily data unavailable:', oneCallResp.status);
-            if (dailyFallbackEl) dailyFallbackEl.style.display = 'block';
-            const toast = document.getElementById('onecall-toast');
-            if (toast) {
-                const msg = toast.querySelector('.onecall-msg');
-                if (msg) msg.textContent = `Detailed daily data unavailable (code ${oneCallResp.status}).`;
-                toast.style.display = 'flex';
-            }
-        }
-    } catch (e) {
-        console.warn('OneCall fetch error:', e.message);
-        const dailyFallbackEl = document.querySelector('.daily-fallback');
-        if (dailyFallbackEl) dailyFallbackEl.style.display = 'block';
-        const toast = document.getElementById('onecall-toast');
-        if (toast) {
-            const msg = toast.querySelector('.onecall-msg');
-            if (msg) msg.textContent = `Detailed daily data unavailable (error).`;
-            toast.style.display = 'flex';
-        }
+    // --- PART 2: Fetch Current Weather ---
+    const weatherResponse = await fetch(`${currentWeatherApiUrl}lat=${lat}&lon=${lon}`);
+
+    if (!weatherResponse.ok) {
+        document.querySelector(".error").innerHTML = "Failed to fetch weather data.";
+        document.querySelector(".error").style.display = "block";
+        if(loadingIndicator) loadingIndicator.style.display = "none";
+        return;
+    }
+    
+    const data = await weatherResponse.json();
+
+    // --- PART 3: Update UI for Current Weather ---
+    const cityDisplay = locationName;
+    let detailsDisplay = '';
+
+    // Construct the State/Country display
+    if (countryCode === 'US' && stateName) {
+        detailsDisplay = `${stateName}, ${countryCode}`;
+    } else if (countryCode && COUNTRY_NAMES[countryCode]) {
+        detailsDisplay = COUNTRY_NAMES[countryCode];
+    } else if (countryCode) {
+        detailsDisplay = countryCode;
     }
 
-    // Handle NWS Severe Weather Alerts
+    document.querySelector(".city").innerHTML = cityDisplay;
+    // Assuming you have an element with class .details-location for state/country
+    const detailsLocationEl = document.querySelector(".details-location"); 
+    if(detailsLocationEl) detailsLocationEl.innerHTML = detailsDisplay;
+
+    document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "&deg;F";
+    document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
+    // Wind is likely in the .details section, check if it exists
+    const windEl = document.querySelector(".wind");
+    if(windEl) windEl.innerHTML = Math.round(data.wind.speed) + " mph"; 
+    
+    // Assuming you have a .description element for weather description
+    const descriptionEl = document.querySelector(".description");
+    if(descriptionEl) descriptionEl.innerHTML = data.weather[0].description.replace(/\b\w/g, l => l.toUpperCase());
+    
+    weatherIcon.src = getWeatherIcon(data.weather[0].main);
+
+
+    // --- PART 4: Fetch Detailed Forecasts (5-Day / Hourly) and Fallback ---
+    
+    // First, fetch the 5-day / 3-hour forecast for the hourly data and as a daily fallback
+    const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?units=imperial&appid=${apiKey}&lat=${lat}&lon=${lon}`);
+    const forecastData = await forecastResponse.json();
+
+    if (forecastResponse.ok) {
+        displayForecasts(forecastData); // Uses 5-day / 3hr data for both hourly and daily fallback
+    }
+
+    // --- PART 5: Fetch Alerts (NWS) ---
+    // NWS is US-only, so only call it if we have a US location
     if(countryCode === 'US') {
-        handleNwsAlerts(lat, lon);   
-    }
-    else{
+        handleNwsAlerts(lat, lon); 
+    } else {
         if (severeAlertBanner) {
             severeAlertBanner.innerHTML = '';
             severeAlertBanner.style.display = 'none';
         }
     }
-    
-    if (weatherResponse.status !== 200) {
-        document.querySelector(".error").style.display = "block";
-        document.querySelector(".city").innerHTML = "Weather Data Unavailable";
-        if (loadingIndicator){
-            loadingIndicator.style.display = "none";
-        }
-        return;
+
+
+    // --- PART 6: One Call API for Detailed 7-Day Data (Best Practice) ---
+    const oneCallUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,current,alerts&units=imperial&appid=${apiKey}`;
+    const oneCallResponse = await fetch(oneCallUrl);
+
+    if (oneCallResponse.ok) {
+        const oneCallData = await oneCallResponse.json();
+        // Overwrite the daily forecast with the superior One Call data
+        displayDailyOneCall(oneCallData); 
+    } else {
+        // Show a message/toast if One Call fails (e.g., if you haven't upgraded your OWM account)
+        console.warn("One Call API access failed. Using 5-day forecast fallback.");
+        const toast = document.getElementById('onecall-toast');
+        if (toast) toast.style.display = 'flex';
+        // The displayForecasts fallback function was already called in Part 4.
     }
 
-    let weatherData = await weatherResponse.json();
 
+    // --- PART 7: Final UI State ---
+    if(input) saveCity(locationName); // Save only if search was text-based
 
-    // --- PART 3: Display Data (Relies on initialized locationName, stateName, countryCode) ---
-    
-    // 🔑 NEW: Save the city name after successful data fetch and before displaying
-    if (locationName && locationName !== "Coordinates" && locationName !== "Your Location") {
-        saveCity(locationName);
-    }
-
-    // Construct the Location Display:
-    // 🎯 FIX 3: Initialize locationDisplay properly, especially for the Geolocation case.
-    // If locationName is undefined (due to reverse geocoding failure), set a default.
-    let locationDisplay = locationName || "Coordinates"; 
-    
-    if (stateName) {
-        // ... (Keep your existing display logic for US state codes) ...
-        const stateCode = US_STATE_CODES[stateName]
-        if (stateCode){
-            locationDisplay = `${locationName}, ${stateCode}`;
-        }else{
-            locationDisplay = `${locationName}, ${stateName}`;
-        }
-       
-    } else if (countryCode && countryCode !== 'US') {
-        // ... (Keep your existing display logic for international country names) ...
-        const countryName = COUNTRY_NAMES[countryCode]
-
-        if (countryName){
-            locationDisplay = `${locationName}, ${countryName}`;
-        }else{
-            locationDisplay = `${locationName}, ${countryCode}`;
-        }
-    }
-
-    // ... (rest of the display logic) ...
-    document.querySelector(".city").innerHTML = locationDisplay;
-    document.querySelector(".temp").innerHTML = Math.round(weatherData.main.temp) + "°F";
-    document.querySelector(".humidity").innerHTML = weatherData.main.humidity + "%";
-    document.querySelector(".wind").innerHTML = weatherData.wind.speed + " mph"; 
-
-    // ====================================================
-    // *** NEW LOGIC FOR DYNAMIC ICON CHANGE ***
-    // ====================================================
-    const weatherCondition = weatherData.weather[0].main;
-    
-    // needed, few clouds, scattered clouds, broken clouds, overcast
-    // need variety for different cloud conditions
-
-    switch (weatherCondition) {
-        case "Clouds":
-            weatherIcon.src = "images/cloudy.png";
-            break;
-        case "Clear":
-            weatherIcon.src = "images/clear.png";
-            break;
-        case "Rain":
-            weatherIcon.src = "images/rain.png";
-            break;
-        case "Drizzle":
-            weatherIcon.src = "images/drizzle.png";
-            break;
-        case "Mist":
-            weatherIcon.src = "images/mist.png";
-            break; 
-        case "Smoke":
-            weatherIcon.src = "images/smoke.png"; 
-            break; 
-        case "Haze":
-            weatherIcon.src = "images/haze.png"; 
-            break;
-        case "Fog":
-            weatherIcon.src = "images/fog.png"; 
-            break;
-        case "Snow":
-            weatherIcon.src = "images/snow.png";
-            break;
-        case "Thunderstorm":
-            weatherIcon.src = "images/thunderstorm.png";
-            break;
-
-        case "Sand":
-            weatherIcon.src = "images/sand.png";
-            break; 
-        case "Dust":
-            weatherIcon.src = "images/dust.png";
-            break;
-        case "Ash":
-            weatherIcon.src = "images/ash.png";
-            break;
-        case "Squall":
-            weatherIcon.src = "images/squall.png";
-            break;
-        case "Tornado":
-            weatherIcon.src = "images/tornado.png";
-            break;
-        default:
-            // Fallback for unknown conditions
-            weatherIcon.src = "images/clear.png";
-            break; 
-    }
-   // ====================================================
-
-    // --- PART 4: Final UI Updates ---
-    document.querySelector(".error").style.display = "none";
-    document.querySelector(".weather").classList.add("active");
-    
-    if(loadingIndicator){
+    if (loadingIndicator) {
         loadingIndicator.style.display = "none";
-    } 
+    }
 
+    // Show the weather display container
+    document.querySelector(".card").classList.add("expanded");
+    document.querySelector(".weather").classList.add("active");
+    applyLayout(); // Re-apply layout preference after loading new data
 }
 
+// --- Event Listeners (Added to connect UI to logic) ---
 
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initial load: Render saved cities and load layout preference
+    renderSavedCities();
+    applyLayout();
 
-searchBtn.addEventListener("click", () => {
-    checkWeather(searchBox.value);
-});
+    // 2. Optional: Load weather for the first saved city on page load
+    const cities = getSavedCities();
+    if (cities.length > 0) {
+        checkWeather(cities[0]);
+    }
+    
+    // 3. Search button click
+    if(searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            checkWeather(searchBox.value);
+        });
+    }
 
-// NEW: Add listener for the Enter key on the input box
-searchBox.addEventListener("keydown", (event) => {
-    // KeyCode 13 is the Enter key (legacy)
-    // 'key' property is the modern standard
-    if (event.key === 'Enter' || event.keyCode === 13) {
-        event.preventDefault(); 
-        checkWeather(searchBox.value);
+    // 4. Search box 'Enter' key press
+    if(searchBox) {
+        searchBox.addEventListener("keyup", (event) => {
+            if (event.key === "Enter") {
+                checkWeather(searchBox.value);
+            }
+        });
+    }
+
+    // 5. Geolocation button click
+    if(locationBtn) {
+        locationBtn.addEventListener('click', getCurrentLocationWeather);
+    }
+
+    // 6. Saved Cities click listener
+    if(savedCitiesContainer) {
+        savedCitiesContainer.addEventListener('click', handleSavedCityClick);
     }
 });
 
-// Attach the listener to the new location button
-locationBtn.addEventListener("click", getCurrentLocationWeather);
-
-// Attach the listener
-savedCitiesContainer.addEventListener('click', handleSavedCityClick);
-
-// NEW: Load saved cities when the script starts
-
-renderSavedCities();

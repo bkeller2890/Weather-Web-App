@@ -32,7 +32,8 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     transition: max-width 0.4s ease-in-out;
     overflow: visible; /* Changed from hidden to visible */ 
-    min-height: fit-content;
+     /*min-height: auto;
+    height: auto; */
     padding-bottom: 40px; 
 }
 
@@ -40,6 +41,9 @@ body {
     max-width: 950px; 
     width: 95%;
     overflow: visible; 
+
+    height: auto; 
+    min-height: fit-content; 
 }
 
 /* --- Search Bar --- */
@@ -347,9 +351,17 @@ body {
     width: 110;  
 }
 
+.hourly-forecast {
+    grid-column: 1 / 3; /* Spans from grid line 1 to 3 (the full width) */
+    grid-row: 4 / 5;    
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
 /* --- Daily Forecast: switch to horizontal scroller and full-width placement --- */
 .daily-forecast {
     grid-column: 1 / 3; /* full width */
+    grid-row: 5 / 6; 
     margin-top: 8px;
     padding-top: 0px;
 }
@@ -417,15 +429,6 @@ body {
     font-weight: 600;
     font-size: 14px;
 }
-
-/* --- Positioning the Hourly Forecast (Full Width at Bottom) --- */
-.hourly-forecast {
-    grid-column: 1 / 3; /* Spans from grid line 1 to 3 (the full width) */
-    grid-row: 4 / 5;    /* Placed in the second row (the bottom section) */
-    padding-top: 20px;
-    margin-top: 20px;
-}
-
 .current-weather-main {
     grid-column: 1 / 2; /* Stays in the left column */
     grid-row: 1 / 2;    /* Stays in the first row (the top section) */
@@ -586,9 +589,31 @@ body {
 .weather.stack-vertical .daily-forecast,
 .weather.stack-vertical .current-weather-main,
 .weather.stack-vertical .details {
-    grid-column: auto;
+    grid-column: 1 / 2;
     grid-row: auto;
     width: 100%;
+}
+
+/* Specific row assignments to force the correct display order: */
+
+/* 1. Main Weather (e.g., Row 1) */
+.weather.stack-vertical .current-weather-main {
+    grid-row: 1 / 2; 
+}
+
+/* 2. Details (Humidity/Wind) (e.g., Row 2) */
+.weather.stack-vertical .details {
+    grid-row: 2 / 3;
+}
+
+/* 3. Hourly Forecast (Row 3, desired to be first) */
+.weather.stack-vertical .hourly-forecast {
+    grid-row: 3 / 4; 
+}
+
+/* 4. 7-Day Forecast (Row 4, desired to be second) */
+.weather.stack-vertical .daily-forecast {
+    grid-row: 4 / 5; 
 }
 
 /* Switch daily scroll container to a vertical list when stacked */
