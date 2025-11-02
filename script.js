@@ -159,54 +159,73 @@ function handleSearchError() {
 
 /**
  * NWS Step 1 & 2: Fetches NWS Grid ID and then fetches active alerts for that location.
+ * Now processes all alerts, including Special Weather Statements (SPS).
  * @param {number} lat - Latitude of the location.
  * @param {number} lon - Longitude of the location.
  */
 async function handleNwsAlerts(lat, lon) {
     // 1. Clear previous alerts and hide the banner
-    if (severeAlertBanner) {
-        severeAlertBanner.innerHTML = '';
-        severeAlertBanner.style.display = 'none';
-    } else {
-        // Guard clause: ensure the element exists
-        return;
-    }
+    if (!severeAlertBanner) return;
+    severeAlertBanner.innerHTML = '';
+    severeAlertBanner.style.display = 'none';
 
     try {
-        // Step 1: Get Grid Point for the coordinates
+        // Step 1: Get Grid Point and Zone
         const pointsUrl = `${NWS_API_BASE}/points/${lat},${lon}`;
-        const pointsResponse = await fetch(pointsUrl, {
-            headers: { 'User-Agent': NWS_USER_AGENT }
-        });
-
+        // ... (fetch pointsResponse and get pointsData as before) ...
+        const pointsResponse = await fetch(pointsUrl, { headers: { 'User-Agent': NWS_USER_AGENT } });
         if (!pointsResponse.ok) throw new Error("Failed to get NWS grid point.");
-        
         const pointsData = await pointsResponse.json();
-        // NWS provides a forecastZone for alerts (e.g., 'VAZ054')
-        const forecastZone = pointsData.properties.forecastZone.split('/').pop(); 
+        const forecastZone = pointsData.properties.forecastZone.split('/').pop();
 
         // Step 2: Fetch Alerts for the Zone
         const alertsUrl = `${NWS_API_BASE}/alerts/active/zone/${forecastZone}`;
-        const alertsResponse = await fetch(alertsUrl, {
-            headers: { 'User-Agent': NWS_USER_AGENT }
-        });
+        const alertsResponse = await fetch(alertsUrl, { headers: { 'User-Agent': NWS_USER_AGENT } });
 
         if (!alertsResponse.ok) throw new Error("Failed to fetch NWS alerts.");
 
         const alertsData = await alertsResponse.json();
         
-        // Step 3: Display the Alerts
-        if (alertsData.features.length > 0) {
-            const alert = alertsData.features[0].properties; // Use the first (usually most urgent)
-            const headline = alert.event; // e.g., "Severe Thunderstorm Warning"
+        // --- STEP 3: Process and Display ALL Alerts (Including SPS) ---
+        
+        const activeAlerts = alertsData.features;
+        let alertHTML = '';
+        
+        if (activeAlerts.length > 0) {
             
-            const alertHTML = `
-                <div class="alert-item">
-                    <p class="alert-headline">🚨 **SEVERE ALERT:** ${headline}</p>
-                    <p class="alert-description">${alert.description}</p>
-                    <p class="alert-severity">Severity: ${alert.severity}</p>
-                </div>
-            `;
+            // Sort alerts by severity (usually handled by the API, but useful for display)
+            // We want to make sure the highest priority alert is first in the banner.
+            // The NWS API typically returns them ordered, but we can ensure it.
+            
+            activeAlerts.forEach(feature => {
+                const alert = feature.properties;
+                const headline = alert.event; // e.g., "Special Weather Statement" or "Tornado Warning"
+                const description = alert.description.substring(0, 300) + '...'; // Truncate long descriptions
+                const severity = alert.severity; // e.g., "Severe" or "Minor"
+                
+                let icon = '🚨'; // Default for severe
+                let classModifier = 'severe'; // For CSS styling
+                
+                if (headline.includes('Warning') || headline.includes('Watch') || headline.includes('Advisory')) {
+                    icon = '⚠️';
+                }
+                
+                // Identify Special Weather Statements (SPS) and assign a milder icon/style
+                if (headline.includes('Special Weather Statement')) {
+                    icon = '📣'; // Annoucement
+                    classModifier = 'statement';
+                }
+                
+                alertHTML += `
+                    <div class="alert-item ${classModifier}">
+                        <p class="alert-headline"><span class="emoji">${icon}</span> **${headline}**</p>
+                        <p class="alert-description">${description}</p>
+                        <p class="alert-severity">Severity: ${severity}</p>
+                    </div>
+                    <hr class="alert-divider">
+                `;
+            });
+
             severeAlertBanner.innerHTML = alertHTML;
             severeAlertBanner.style.display = 'block';
         }

@@ -196,6 +196,36 @@ body {
     opacity: 0.8;
 }
 
+/* --- Special Weather Statement (SPS) Styling --- */
+
+/* Style for less-severe alerts (like SPS) */
+.severe-alert-banner .alert-item.statement {
+    /* Milder background for lower priority, maintaining contrast */
+    background-color: #f0f0f0; 
+    color: #333;
+    /* Use a calmer color (like blue) for the statement border */
+    border-left: 5px solid #0099cc; 
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.severe-alert-banner .alert-item.statement .alert-headline {
+    color: #0077aa; /* Darker blue text */
+    font-size: 1.1em;
+    /* Remove the extreme uppercase styling for SPS */
+    text-transform: none; 
+}
+
+/* Divider between multiple alerts */
+.alert-divider {
+    border: 0;
+    height: 1px;
+    /* Gradient color from transparent to red in the middle */
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(204, 0, 0, 0.5), rgba(0, 0, 0, 0));
+    margin: 10px 0;
+}
+
 /* --- Hourly Forecast Styles --- */
 .hourly-forecast h3,
 .daily-forecast h3 {
