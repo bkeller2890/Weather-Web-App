@@ -159,7 +159,7 @@ function handleSearchError() {
 
 /**
  * NWS Step 1 & 2: Fetches NWS Grid ID and then fetches active alerts for that location.
- * Now processes all alerts, including Special Weather Statements (SPS).
+ * Now processes all alerts, including Special Weather Statements (SPS) and Marine Alerts.
  * @param {number} lat - Latitude of the location.
  * @param {number} lon - Longitude of the location.
  */
@@ -167,71 +167,113 @@ async function handleNwsAlerts(lat, lon) {
     // 1. Clear previous alerts and hide the banner
     if (!severeAlertBanner) return;
     severeAlertBanner.innerHTML = '';
-    severeAlertBanner.style.display = 'none';
+    severeAlertBanner.style.display = 'none'; // Will only display if alerts are found
 
     try {
         // Step 1: Get Grid Point and Zone
         const pointsUrl = `${NWS_API_BASE}/points/${lat},${lon}`;
-        // ... (fetch pointsResponse and get pointsData as before) ...
         const pointsResponse = await fetch(pointsUrl, { headers: { 'User-Agent': NWS_USER_AGENT } });
         if (!pointsResponse.ok) throw new Error("Failed to get NWS grid point.");
+        
         const pointsData = await pointsResponse.json();
         const forecastZone = pointsData.properties.forecastZone.split('/').pop();
 
-        // Step 2: Fetch Alerts for the Zone
+        // FIX 1: Correct the property name for marine zone.
+        const marineZoneURL = pointsData.properties.marineForecastZone; 
+        let marineZone = null;
+        if (marineZoneURL){
+            marineZone = marineZoneURL.split('/').pop();
+        }
+
+        let alertHTML = ''; // Accumulator for all alert HTML
+
+        // --- Step 2A: Fetch Land Alerts (Warnings, Watches, SPS) ---
         const alertsUrl = `${NWS_API_BASE}/alerts/active/zone/${forecastZone}`;
         const alertsResponse = await fetch(alertsUrl, { headers: { 'User-Agent': NWS_USER_AGENT } });
 
-        if (!alertsResponse.ok) throw new Error("Failed to fetch NWS alerts.");
-
-        const alertsData = await alertsResponse.json();
-        
-        // --- STEP 3: Process and Display ALL Alerts (Including SPS) ---
-        
-        const activeAlerts = alertsData.features;
-        let alertHTML = '';
-        
-        if (activeAlerts.length > 0) {
+        if (alertsResponse.ok) {
+            const alertsData = await alertsResponse.json();
+            const activeAlerts = alertsData.features;
             
-            // Sort alerts by severity (usually handled by the API, but useful for display)
-            // We want to make sure the highest priority alert is first in the banner.
-            // The NWS API typically returns them ordered, but we can ensure it.
-            
-            activeAlerts.forEach(feature => {
-                const alert = feature.properties;
-                const headline = alert.event; // e.g., "Special Weather Statement" or "Tornado Warning"
-                const description = alert.description.substring(0, 300) + '...'; // Truncate long descriptions
-                const severity = alert.severity; // e.g., "Severe" or "Minor"
+            if (activeAlerts.length > 0) {
+                activeAlerts.forEach(feature => {
+                    const alert = feature.properties;
+                    const headline = alert.event;
+                    const description = alert.description.substring(0, 300) + '...';
+                    const severity = alert.severity;
+                    
+                    let icon = '🚨';
+                    let classModifier = 'severe';
+                    
+                    if (headline.includes('Warning') || headline.includes('Watch') || headline.includes('Advisory')) {
+                        icon = '⚠️';
+                    }
+                    
+                    // Identify Special Weather Statements (SPS)
+                    if (headline.includes('Special Weather Statement')) {
+                        icon = '📣';
+                        classModifier = 'statement';
+                    }
+                    
+                    alertHTML += `
+                        <div class="alert-item ${classModifier}">
+                            <p class="alert-headline"><span class="emoji">${icon}</span> **${headline}**</p>
+                            <p class="alert-description">${description}</p>
+                            <p class="alert-severity">Severity: ${severity}</p>
+                        </div>
+                        <hr class="alert-divider">
+                    `;
+                });
                 
-                let icon = '🚨'; // Default for severe
-                let classModifier = 'severe'; // For CSS styling
-                
-                if (headline.includes('Warning') || headline.includes('Watch') || headline.includes('Advisory')) {
-                    icon = '⚠️';
-                }
-                
-                // Identify Special Weather Statements (SPS) and assign a milder icon/style
-                if (headline.includes('Special Weather Statement')) {
-                    icon = '📣'; // Annoucement
-                    classModifier = 'statement';
-                }
-                
-                alertHTML += `
-                    <div class="alert-item ${classModifier}">
-                        <p class="alert-headline"><span class="emoji">${icon}</span> **${headline}**</p>
-                        <p class="alert-description">${description}</p>
-                        <p class="alert-severity">Severity: ${severity}</p>
-                    </div>
-                    <hr class="alert-divider">
-                `;
-            });
+                // >>> NOTE: No UI update here yet, just appending to alertHTML <<<
+            }
+        } else {
+             console.warn("Failed to fetch land-based NWS alerts.");
+        }
 
+
+        // --- Step 2B: Fetch Marine Alerts (Small Craft Advisory) ---
+        if (marineZone) {
+            // Note: Using 'zone' parameter for marine zone ID and filtering by event
+            const marineAlertsUrl = `${NWS_API_BASE}/alerts/active?zone=${marineZone}&event=Small%20Craft%20Advisory`;
+            const marineAlertsResponse = await fetch(marineAlertsUrl, { headers: { 'User-Agent': NWS_USER_AGENT } });
+
+            if (marineAlertsResponse.ok) {
+                const marineAlertsData = await marineAlertsResponse.json();
+                const marineAlerts = marineAlertsData.features;
+
+                if (marineAlerts.length > 0) {
+                    marineAlerts.forEach(feature => {
+                        const alert = feature.properties;
+                        const headline = alert.event; // "Small Craft Advisory"
+                        const description = alert.description.substring(0, 300) + '...';
+                        const severity = alert.severity; 
+                        
+                        let icon = '🛥️'; 
+                        let classModifier = 'marine'; 
+                        
+                        alertHTML += `
+                            <div class="alert-item ${classModifier}">
+                                <p class="alert-headline"><span class="emoji">${icon}</span> **${headline}**</p>
+                                <p class="alert-description">${description}</p>
+                                <p class="alert-severity">Severity: ${severity}</p>
+                            </div>
+                            <hr class="alert-divider">
+                        `;
+                    });
+                    // >>> NOTE: No UI update here yet, just appending to alertHTML <<<
+                }
+            }
+        }
+        
+        // --- Step 3: Final UI Update ---
+        if (alertHTML) {
             severeAlertBanner.innerHTML = alertHTML;
             severeAlertBanner.style.display = 'block';
         }
 
     } catch (error) {
-        console.error("NWS Alert Error:", error.message);
+        console.error("NWS Alert Fatal Error:", error.message);
         // Fail silently or show a generic message for alert errors
     }
 }

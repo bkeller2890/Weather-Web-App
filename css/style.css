@@ -226,6 +226,25 @@ body {
     margin: 10px 0;
 }
 
+/* --- Marine Alert / Small Craft Advisory Styling (NEW ADDITION) --- */
+
+.severe-alert-banner .alert-item.marine {
+    /* Muted blue/gray for a marine advisory look */
+    background-color: #e6f7ff; 
+    color: #003366; 
+    /* Use a clear blue for emphasis, symbolizing water */
+    border-left: 5px solid #0056b3; 
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.severe-alert-banner .alert-item.marine .alert-headline {
+    color: #0056b3; 
+    font-size: 1.1em;
+    text-transform: none; /* Keep the headline non-urgent (not uppercase) */
+}
+
 /* --- Hourly Forecast Styles --- */
 .hourly-forecast h3,
 .daily-forecast h3 {
