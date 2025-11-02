@@ -16,8 +16,20 @@ function sanitizeName(name) {
 (async () => {
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
-  // Inject OpenWeatherMap API key from environment into the page context securely
-  const envKey = process.env.OPENWEATHER_API_KEY;
+  // Inject OpenWeatherMap API key into the page context securely.
+  // Priority: OWM_API_KEY env var -> OPENWEATHER_API_KEY env var -> tools/owm_key.txt file
+  let envKey = process.env.OWM_API_KEY || process.env.OPENWEATHER_API_KEY;
+  if (!envKey) {
+    // Try reading from tools/owm_key.txt
+    try {
+      const keyFile = path.join(__dirname, 'owm_key.txt');
+      if (fs.existsSync(keyFile)) {
+        envKey = fs.readFileSync(keyFile, 'utf8').trim();
+      }
+    } catch (e) {
+      // ignore read errors
+    }
+  }
   if (envKey) {
     await page.evaluateOnNewDocument(key => {
       window.__OWM_API_KEY = key;

@@ -644,16 +644,34 @@ async function checkWeather(input, lat = null, lon = null) {
             const zipGeoUrl = `https://api.openweathermap.org/geo/1.0/zip?zip=${trimmedInput},us&appid=${apiKey}`;
             geoResponse = await fetch(zipGeoUrl);
         } else {
+            // Improve handling for inputs like "City, ST" (e.g., "Dallas, TX") by appending ',US'
+            // when the second part looks like a 2-letter state code or common state name fragment.
             let locationString = trimmedInput;
+            const parts = trimmedInput.split(',').map(p => p.trim());
+            if (parts.length === 2) {
+                const second = parts[1];
+                // If second part is a 2-letter code or a state name, append ',US' if not present
+                if (/^[A-Za-z]{2}$/.test(second) || second.length > 2) {
+                    // If user included country already (e.g., 'NY, US'), don't double append
+                    if (!/\bUS\b/i.test(parts.join(' '))) {
+                        locationString = `${parts[0]}, ${parts[1]}, US`;
+                    }
+                }
+            }
+
+            // Use standard city name geocoding with the improved location string
             const encodedInput = encodeURIComponent(locationString);
-            const cityGeoUrl = currentGeoApiUrl + encodedInput; 
+            const cityGeoUrl = currentGeoApiUrl + encodedInput;
             geoResponse = await fetch(cityGeoUrl);
         }
     
-        if (!geoResponse.ok) { 
-            document.querySelector(".error").innerHTML = "Location not found or API error.";
+        if (!geoResponse.ok) {
+            // Log the raw status and body to help debug why geocoding failed (shows 401/403, etc.)
+            const geoText = await geoResponse.text();
+            console.error('Geocode failed:', geoResponse.status, geoText);
+            document.querySelector(".error").innerHTML = "Location not found or API error. See console.";
             document.querySelector(".error").style.display = "block";
-            if(loadingIndicator) loadingIndicator.style.display = "none";
+            if (loadingIndicator) loadingIndicator.style.display = "none";
             return;
         }
 
@@ -711,22 +729,57 @@ async function checkWeather(input, lat = null, lon = null) {
     const data = await weatherResponse.json();
 
     // --- PART 3: Update UI for Current Weather ---
-    const cityDisplay = locationName;
-    let detailsDisplay = '';
+    // Build a user-friendly location string:
+    // - US: "City, ST, United States" (use 2-letter state code when possible)
+    // - Other: "City, Country Name"
+    function getStateCode(state) {
+        if (!state) return null;
+        if (/^[A-Za-z]{2}$/.test(state)) return state.toUpperCase();
+        // Try mapping full state name to code
+        return US_STATE_CODES[state] || null;
+    }
 
-    // Construct the State/Country display
-    if (countryCode === 'US' && stateName) {
-        detailsDisplay = `${stateName}, ${countryCode}`;
-    } else if (countryCode && COUNTRY_NAMES[countryCode]) {
-        detailsDisplay = COUNTRY_NAMES[countryCode];
+    // Resolve a human-friendly country name. Prefer the hardcoded COUNTRY_NAMES mapping,
+    // then fall back to Intl.DisplayNames if available. If neither is available, keep the
+    // ISO country code as a last resort.
+    let countryFull = null;
+    if (countryCode) {
+        countryFull = COUNTRY_NAMES[countryCode] || null;
+        if (!countryFull) {
+            try {
+                if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
+                    const dn = new Intl.DisplayNames(['en'], { type: 'region' });
+                    const resolved = dn.of(countryCode);
+                    if (resolved && resolved !== countryCode) {
+                        countryFull = resolved;
+                    }
+                }
+            } catch (e) {
+                // Ignore and allow countryFull to remain null
+            }
+        }
+    }
+    let cityDisplay = locationName;
+
+    if (countryCode === 'US') {
+        const sCode = getStateCode(stateName);
+        if (sCode) {
+            cityDisplay = `${locationName}, ${sCode}, ${countryFull || 'United States'}`;
+        } else if (stateName) {
+            cityDisplay = `${locationName}, ${stateName}, ${countryFull || 'United States'}`;
+        } else {
+            cityDisplay = `${locationName}, ${countryFull || 'United States'}`;
+        }
+    } else if (countryFull) {
+        cityDisplay = `${locationName}, ${countryFull}`;
     } else if (countryCode) {
-        detailsDisplay = countryCode;
+        cityDisplay = `${locationName}, ${countryCode}`;
     }
 
     document.querySelector(".city").innerHTML = cityDisplay;
-    // Assuming you have an element with class .details-location for state/country
-    const detailsLocationEl = document.querySelector(".details-location"); 
-    if(detailsLocationEl) detailsLocationEl.innerHTML = detailsDisplay;
+    // Keep the details-location element minimal (optional)
+    const detailsLocationEl = document.querySelector(".details-location");
+    if (detailsLocationEl) detailsLocationEl.innerHTML = '';
 
     document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "&deg;F";
     document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
