@@ -1,0 +1,245 @@
+{
+  "runAt": "2025-11-02T06:08:42.928Z",
+  "results": [
+    {
+      "city": "Dallas, TX",
+      "timestamp": "2025-11-02T06:08:32.372Z",
+      "console": [
+        {
+          "type": "console",
+          "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+          "args": []
+        },
+        {
+          "type": "console",
+          "text": "OneCall daily data unavailable: 401",
+          "args": [
+            "JSHandle:OneCall daily data unavailable:",
+            "JSHandle:401"
+          ]
+        }
+      ],
+      "network": [
+        {
+          "url": "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=fca1ee0d8fe311426b14aae80fdb3c2d&q=Dallas%2C%20TX%2CUS",
+          "status": 200,
+          "body": "[{\"name\":\"Dallas\",\"local_names\":{\"oc\":\"Dallas\",\"ar\":\"دالاس\",\"ru\":\"Даллас\",\"kn\":\"ಡಲ್ಲಾಸ್\",\"uk\":\"Даллас\",\"fr\":\"Dallas\",\"pt\":\"Dallas\",\"zh\":\"达拉斯/達拉斯\",\"en\":\"Dallas\",\"ja\":\"ダラス\"},\"lat\":32.7762719,\"lon\":-96.7968559,\"country\":\"US\",\"state\":\"Texas\"}]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=fca1ee0d8fe311426b14aae80fdb3c2d&lat=32.7762719&lon=-96.7968559",
+          "status": 200,
+          "body": "{\"coord\":{\"lon\":-96.7969,\"lat\":32.7763},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04n\"}],\"base\":\"stations\",\"main\":{\"temp\":55.09,\"feels_like\":53.64,\"temp_min\":53.06,\"temp_max\":57.72,\"pressure\":1023,\"humidity\":71,\"sea_level\":1023,\"grnd_level\":1004},\"visibility\":10000,\"wind\":{\"speed\":6.91,\"deg\":30},\"clouds\":{\"all\":75},\"dt\":1762063612,\"sys\":{\"type\":2,\"id\":2075302,\"country\":\"US\",\"sunrise\":1762087558,\"sunset\":1762126526},\"timezone\":-18000,\"id\":4684888,\"name\":\"Dallas\",\"cod\":200}"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=32.7762719&lon=-96.7968559&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 200,
+          "body": "{\"cod\":\"200\",\"message\":0,\"cnt\":40,\"list\":[{\"dt\":1762074000,\"main\":{\"temp\":53.1,\"feels_like\":51.15,\"temp_min\":49.08,\"temp_max\":53.1,\"pressure\":1023,\"sea_level\":1023,\"grnd_level\":1005,\"humidity\":65,\"temp_kf\":2.23},\"weather\":[{\"id\":802,\"main\":\"Clouds\",\"description\":\"scattered clouds\",\"icon\":\"03n\"}],\"clouds\":{\"all\":50},\"wind\":{\"speed\":5.86,\"deg\":47,\"gust\":10.83},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"n\"},\"dt_txt\":\"2025-11-02 09:00:00\"},{\"dt\":1762084800,\"main\":{\"temp\":49.33,\"feels_like\":48.07,\"temp_min\":46.45,\"temp_max\":49.33,\"pressure\":1024,\"sea_level\":1024,\"grnd_level\":1006,\"humidity\":55,\"temp_kf\":1.6},\"weather\":[{\"id\":802,\"main\":\"Clouds\",\"description\":\"scattered clouds\",\"icon\":\"03n\"}],\"clouds\":{\"all\":34},\"wind\":{\"speed\":4.03,\"deg\":66,\"gust\":6.22},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"n\"},\"dt_txt\":\"2025-11-02 12:00:00\"},{\"dt\":1762095600,\"main\":{\"temp\":51.4,\"feels_like\":48.16,\"temp_min\":51.4,\"temp_max\":51.4,\"pressure\":1026,\"sea_level\":1026,\"grnd_level\":1007,\"humidity\":41,\"temp_kf\":0},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"clouds\":{\"all\":0},\"wind\":{\"speed\":2.82,\"deg\":89,\"gust\":2.21},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 15:00:00\"},{\"dt\":1762106400,\"main\":{\"temp\":66.24,\"feels_like\":64.06,\"temp_min\":66.24,\"temp_max\":66.24,\"pressure\":1025,\"sea_level\":1025,\"grnd_level\":1006,\"humidity\":32,\"temp_kf\":0},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"clouds\":{\"all\":0},\"wind\":{\"speed\":2.13,\"deg\":181,\"gust\":2.82},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 18:00:00\"},{\"dt\":1762117200,\"main\":{\"temp\":68.65,\"feels_like\":66.61,\"temp_min\":68.65,\"temp_max\":68.65,\"pressure\":1023,\"sea_level\":1023,\"grnd_level\":1004,\"humidity\":30,\"temp_kf\":0},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"clouds\":{\"all\":0},\"wind\":{\"speed\":1.88,\"deg\":192,\"gust\":3.58},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 21:00:00\"},{\"dt\":176212...[truncated]"
+        },
+        {
+          "url": "https://api.weather.gov//points/32.7762719,-96.7968559",
+          "status": 301,
+          "body": "<non-text response: Response body is unavailable for redirect responses>"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=32.7762719&lon=-96.7968559&exclude=minutely,hourly,alerts&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 401,
+          "body": "{\"cod\":401, \"message\": \"Invalid API key. Please see https://openweathermap.org/faq#error401 for more info.\"}"
+        },
+        {
+          "url": "https://api.weather.gov/points/32.7763,-96.7969",
+          "status": 200,
+          "body": "{\n    \"@context\": [\n        \"https://geojson.org/geojson-ld/geojson-context.jsonld\",\n        {\n            \"@version\": \"1.1\",\n            \"wx\": \"https://api.weather.gov/ontology#\",\n            \"s\": \"https://schema.org/\",\n            \"geo\": \"http://www.opengis.net/ont/geosparql#\",\n            \"unit\": \"http://codes.wmo.int/common/unit/\",\n            \"@vocab\": \"https://api.weather.gov/ontology#\",\n            \"geometry\": {\n                \"@id\": \"s:GeoCoordinates\",\n                \"@type\": \"geo:wktLiteral\"\n            },\n            \"city\": \"s:addressLocality\",\n            \"state\": \"s:addressRegion\",\n            \"distance\": {\n                \"@id\": \"s:Distance\",\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"bearing\": {\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"value\": {\n                \"@id\": \"s:value\"\n            },\n            \"unitCode\": {\n                \"@id\": \"s:unitCode\",\n                \"@type\": \"@id\"\n            },\n            \"forecastOffice\": {\n                \"@type\": \"@id\"\n            },\n            \"forecastGridData\": {\n                \"@type\": \"@id\"\n            },\n            \"publicZone\": {\n                \"@type\": \"@id\"\n            },\n            \"county\": {\n                \"@type\": \"@id\"\n            }\n        }\n    ],\n    \"id\": \"https://api.weather.gov/points/32.7763,-96.7968999\",\n    \"type\": \"Feature\",\n    \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -96.7968999,\n            32.7763\n        ]\n    },\n    \"properties\": {\n        \"@id\": \"https://api.weather.gov/points/32.7763,-96.7968999\",\n        \"@type\": \"wx:Point\",\n        \"cwa\": \"FWD\",\n        \"forecastOffice\": \"https://api.weather.gov/offices/FWD\",\n        \"gridId\": \"FWD\",\n        \"gridX\": 89,\n        \"gridY\": 104,\n        \"forecast\": \"https://api.weather.gov/gridpoints/FWD/89,104/forecast\",\n        \"forecastHourly\": \"https://api.weather.gov/gridpoints/FWD/89,104/forecast/hourly\",\n        \"forecastGridData\":...[truncated]"
+        },
+        {
+          "url": "https://api.weather.gov//alerts/active/zone/TXZ119",
+          "status": 200,
+          "body": "{\n    \"@context\": {\n        \"@version\": \"1.1\"\n    },\n    \"type\": \"FeatureCollection\",\n    \"features\": [],\n    \"title\": \"Current watches, warnings, and advisories for Dallas (TXZ119) TX\",\n    \"updated\": \"2025-10-30T00:00:00+00:00\"\n}"
+        }
+      ],
+      "screenshot": "/Users/benjaminkeller/Desktop/App Projects/Weather-Web-App/tools/screenshots/Dallas__TX.png",
+      "pageCity": "Dallas, TX",
+      "pageTemp": "55°F",
+      "dailyItemsRendered": 7
+    },
+    {
+      "city": "Indianapolis, IN",
+      "timestamp": "2025-11-02T06:08:34.916Z",
+      "console": [
+        {
+          "type": "console",
+          "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+          "args": []
+        },
+        {
+          "type": "console",
+          "text": "OneCall daily data unavailable: 401",
+          "args": [
+            "JSHandle:OneCall daily data unavailable:",
+            "JSHandle:401"
+          ]
+        }
+      ],
+      "network": [
+        {
+          "url": "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=fca1ee0d8fe311426b14aae80fdb3c2d&q=Indianapolis%2C%20IN%2CUS",
+          "status": 200,
+          "body": "[{\"name\":\"Indianapolis\",\"local_names\":{\"el\":\"Ινδιανάπολη\",\"pt\":\"Indianápolis\",\"hi\":\"इंडियानापोलिस\",\"fr\":\"Indianapolis\",\"da\":\"Indianapolis\",\"la\":\"Indianapolis\",\"sw\":\"Indianapolis\",\"hy\":\"Ինդիանապոլիս\",\"de\":\"Indianapolis\",\"eo\":\"Indianapolis\",\"gl\":\"Indianapolis\",\"be\":\"Індыянапаліс\",\"bs\":\"Indianapolis\",\"eu\":\"Indianapolis\",\"he\":\"אינדיאנפוליס\",\"an\":\"Indianapolis\",\"yi\":\"אינדיאנאפאליס\",\"mk\":\"Индијанаполис\",\"ro\":\"Indianapolis\",\"oc\":\"Indianapòlis\",\"ar\":\"إنديانابوليس\",\"sa\":\"इन्डियानापोलिस्\",\"no\":\"Indianapolis\",\"cs\":\"Indianapolis\",\"os\":\"Индианаполис\",\"tl\":\"Indiyanapolis\",\"zh\":\"印第安納波利斯\",\"sv\":\"Indianapolis\",\"bi\":\"Indianapolis\",\"rm\":\"Indianapolis\",\"ht\":\"Indianapolis\",\"ko\":\"인디애나폴리스\",\"co\":\"Indianapolis\",\"cy\":\"Indianapolis\",\"et\":\"Indianapolis\",\"mr\":\"इंडियानापोलिस\",\"ku\":\"Indianapolis\",\"en\":\"Indianapolis\",\"fa\":\"ایندیاناپولیس\",\"vo\":\"Indianapolis\",\"ie\":\"Indianapolis\",\"is\":\"Indianapolis\",\"vi\":\"Indianapolis\",\"sq\":\"Indianapolis\",\"es\":\"Indianápolis\",\"gd\":\"Indianapolis\",\"ce\":\"Индианаполис\",\"hu\":\"Indianapolis\",\"bn\":\"ইন্ডিয়ানাপোলিস\",\"fy\":\"Indianapolis\",\"sh\":\"Indianapolis\",\"ia\":\"Indianapolis\",\"sk\":\"Indianapolis\",\"it\":\"Indianapolis\",\"nl\":\"Indianapolis\",\"kk\":\"Индианаполис\",\"so\":\"Indianapolis\",\"tr\":\"Indianapolis\",\"tw\":\"Indianapolis\",\"ja\":\"インディアナポリス\",\"yo\":\"Indianapolis\",\"lt\":\"Indianapolis\",\"ur\":\"انڈیاناپولس\",\"sl\":\"Indianapolis\",\"sc\":\"Indianàpolis\",\"fo\":\"Indianapolis\",\"bg\":\"Индианаполис\",\"uk\":\"Індіанаполіс\",\"hr\":\"Indianapolis\",\"br\":\"Indianapolis\",\"id\":\"Indianapolis\",\"fi\":\"Indianapolis\",\"ru\":\"Индианаполис\",\"mg\":\"Indianapolis\",\"sr\":\"Индијанаполис\",\"kw\":\"Indianapolis\",\"th\":\"อินเดียแนโพลิส\",\"ka\":\"ინდიანაპოლისი\",\"ms\":\"Indianapolis\",\"qu\":\"Indianapolis\",\"nn\":\"Indianapolis\",\"ta\":\"இன்டியனாபொலிஸ்\",\"mn\":\"Индианаполис\",\"ca\":\"Indianapolis\",\"pl\":\"Indianapolis\",\"ga\":\"Indianapolis\",\"io\":\"Indianapolis\",\"az\":\"İndianapolis\"},\"lat\":39.7683331,\"lon\":-86.1583502,\"country\":\"US\",\"state\":\"Indiana\"}]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=fca1ee0d8fe311426b14aae80fdb3c2d&lat=39.7683331&lon=-86.1583502",
+          "status": 200,
+          "body": "{\"coord\":{\"lon\":-86.158,\"lat\":39.7691},\"weather\":[{\"id\":804,\"main\":\"Clouds\",\"description\":\"overcast clouds\",\"icon\":\"04n\"}],\"base\":\"stations\",\"main\":{\"temp\":43.93,\"feels_like\":42.37,\"temp_min\":41.68,\"temp_max\":45.34,\"pressure\":1022,\"humidity\":70,\"sea_level\":1022,\"grnd_level\":993},\"visibility\":10000,\"wind\":{\"speed\":3.44,\"deg\":250},\"clouds\":{\"all\":100},\"dt\":1762063313,\"sys\":{\"type\":2,\"id\":2089097,\"country\":\"US\",\"sunrise\":1762085679,\"sunset\":1762123298},\"timezone\":-18000,\"id\":4259418,\"name\":\"Indianapolis\",\"cod\":200}"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=39.7683331&lon=-86.1583502&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 200,
+          "body": "{\"cod\":\"200\",\"message\":0,\"cnt\":40,\"list\":[{\"dt\":1762074000,\"main\":{\"temp\":42.57,\"feels_like\":42.57,\"temp_min\":39.61,\"temp_max\":42.57,\"pressure\":1021,\"sea_level\":1021,\"grnd_level\":993,\"humidity\":67,\"temp_kf\":1.64},\"weather\":[{\"id\":804,\"main\":\"Clouds\",\"description\":\"overcast clouds\",\"icon\":\"04n\"}],\"clouds\":{\"all\":99},\"wind\":{\"speed\":1.39,\"deg\":271,\"gust\":2.28},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"n\"},\"dt_txt\":\"2025-11-02 09:00:00\"},{\"dt\":1762084800,\"main\":{\"temp\":41.29,\"feels_like\":41.29,\"temp_min\":39.92,\"temp_max\":41.29,\"pressure\":1023,\"sea_level\":1023,\"grnd_level\":995,\"humidity\":61,\"temp_kf\":0.76},\"weather\":[{\"id\":804,\"main\":\"Clouds\",\"description\":\"overcast clouds\",\"icon\":\"04n\"}],\"clouds\":{\"all\":99},\"wind\":{\"speed\":2.01,\"deg\":309,\"gust\":2.93},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"n\"},\"dt_txt\":\"2025-11-02 12:00:00\"},{\"dt\":1762095600,\"main\":{\"temp\":46.63,\"feels_like\":46.63,\"temp_min\":46.63,\"temp_max\":46.63,\"pressure\":1025,\"sea_level\":1025,\"grnd_level\":996,\"humidity\":50,\"temp_kf\":0},\"weather\":[{\"id\":804,\"main\":\"Clouds\",\"description\":\"overcast clouds\",\"icon\":\"04d\"}],\"clouds\":{\"all\":100},\"wind\":{\"speed\":2.39,\"deg\":32,\"gust\":3.58},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 15:00:00\"},{\"dt\":1762106400,\"main\":{\"temp\":51.04,\"feels_like\":48.06,\"temp_min\":51.04,\"temp_max\":51.04,\"pressure\":1024,\"sea_level\":1024,\"grnd_level\":995,\"humidity\":47,\"temp_kf\":0},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"clouds\":{\"all\":84},\"wind\":{\"speed\":2.3,\"deg\":108,\"gust\":2.28},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 18:00:00\"},{\"dt\":1762117200,\"main\":{\"temp\":53.62,\"feels_like\":50.99,\"temp_min\":53.62,\"temp_max\":53.62,\"pressure\":1022,\"sea_level\":1022,\"grnd_level\":994,\"humidity\":49,\"temp_kf\":0},\"weather\":[{\"id\":801,\"main\":\"Clouds\",\"description\":\"few clouds\",\"icon\":\"02d\"}],\"clouds\":{\"all\":19},\"wind\":{\"speed\":5.41,\"deg\":166,\"gust\":6.29},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 21:00:...[truncated]"
+        },
+        {
+          "url": "https://api.weather.gov//points/39.7683331,-86.1583502",
+          "status": 301,
+          "body": "<non-text response: Response body is unavailable for redirect responses>"
+        },
+        {
+          "url": "https://api.weather.gov/points/39.7683,-86.1584",
+          "status": 200,
+          "body": "{\n    \"@context\": [\n        \"https://geojson.org/geojson-ld/geojson-context.jsonld\",\n        {\n            \"@version\": \"1.1\",\n            \"wx\": \"https://api.weather.gov/ontology#\",\n            \"s\": \"https://schema.org/\",\n            \"geo\": \"http://www.opengis.net/ont/geosparql#\",\n            \"unit\": \"http://codes.wmo.int/common/unit/\",\n            \"@vocab\": \"https://api.weather.gov/ontology#\",\n            \"geometry\": {\n                \"@id\": \"s:GeoCoordinates\",\n                \"@type\": \"geo:wktLiteral\"\n            },\n            \"city\": \"s:addressLocality\",\n            \"state\": \"s:addressRegion\",\n            \"distance\": {\n                \"@id\": \"s:Distance\",\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"bearing\": {\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"value\": {\n                \"@id\": \"s:value\"\n            },\n            \"unitCode\": {\n                \"@id\": \"s:unitCode\",\n                \"@type\": \"@id\"\n            },\n            \"forecastOffice\": {\n                \"@type\": \"@id\"\n            },\n            \"forecastGridData\": {\n                \"@type\": \"@id\"\n            },\n            \"publicZone\": {\n                \"@type\": \"@id\"\n            },\n            \"county\": {\n                \"@type\": \"@id\"\n            }\n        }\n    ],\n    \"id\": \"https://api.weather.gov/points/39.7683,-86.1584\",\n    \"type\": \"Feature\",\n    \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -86.1584,\n            39.7683\n        ]\n    },\n    \"properties\": {\n        \"@id\": \"https://api.weather.gov/points/39.7683,-86.1584\",\n        \"@type\": \"wx:Point\",\n        \"cwa\": \"IND\",\n        \"forecastOffice\": \"https://api.weather.gov/offices/IND\",\n        \"gridId\": \"IND\",\n        \"gridX\": 58,\n        \"gridY\": 69,\n        \"forecast\": \"https://api.weather.gov/gridpoints/IND/58,69/forecast\",\n        \"forecastHourly\": \"https://api.weather.gov/gridpoints/IND/58,69/forecast/hourly\",\n        \"forecastGridData\": \"https://ap...[truncated]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=39.7683331&lon=-86.1583502&exclude=minutely,hourly,alerts&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 401,
+          "body": "{\"cod\":401, \"message\": \"Invalid API key. Please see https://openweathermap.org/faq#error401 for more info.\"}"
+        },
+        {
+          "url": "https://api.weather.gov//alerts/active/zone/INZ047",
+          "status": 200,
+          "body": "{\n    \"@context\": {\n        \"@version\": \"1.1\"\n    },\n    \"type\": \"FeatureCollection\",\n    \"features\": [],\n    \"title\": \"Current watches, warnings, and advisories for Marion (INZ047) IN\",\n    \"updated\": \"2025-10-27T00:00:00+00:00\"\n}"
+        }
+      ],
+      "screenshot": "/Users/benjaminkeller/Desktop/App Projects/Weather-Web-App/tools/screenshots/Indianapolis__IN.png",
+      "pageCity": "Indianapolis, IN",
+      "pageTemp": "44°F",
+      "dailyItemsRendered": 7
+    },
+    {
+      "city": "New York, NY",
+      "timestamp": "2025-11-02T06:08:37.694Z",
+      "console": [
+        {
+          "type": "console",
+          "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+          "args": []
+        },
+        {
+          "type": "console",
+          "text": "OneCall daily data unavailable: 401",
+          "args": [
+            "JSHandle:OneCall daily data unavailable:",
+            "JSHandle:401"
+          ]
+        }
+      ],
+      "network": [
+        {
+          "url": "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=fca1ee0d8fe311426b14aae80fdb3c2d&q=New%20York%2C%20NY%2CUS",
+          "status": 200,
+          "body": "[{\"name\":\"New York\",\"local_names\":{\"it\":\"New York\",\"tt\":\"Ниюрык\",\"te\":\"న్యూయొర్క్\",\"pl\":\"Nowy Jork\",\"eu\":\"New York\",\"fr\":\"New York\",\"br\":\"New York\",\"pt\":\"Nova Iorque\",\"bn\":\"নিউ ইয়র্ক\",\"ur\":\"نیو یارک\",\"pa\":\"ਨਿਊਯਾਰਕ\",\"uk\":\"Нью-Йорк\",\"vi\":\"New York\",\"he\":\"ניו יורק\",\"no\":\"New York\",\"hi\":\"न्यूयॊर्क्\",\"be\":\"Нью-Ёрк\",\"de\":\"New York\",\"oc\":\"Nòva York\",\"zh\":\"纽约\",\"eo\":\"Novjorko\",\"ru\":\"Нью-Йорк\",\"es\":\"Nueva York\",\"fa\":\"نیویورک\",\"ga\":\"Nua-Eabhrac\",\"cy\":\"Efrog Newydd\",\"hr\":\"New York\",\"sr\":\"Њујорк\",\"ar\":\"نيويورك\",\"ca\":\"Nova York\",\"ko\":\"뉴욕\",\"az\":\"Nyu-York\",\"mi\":\"Niu Iaka\",\"gl\":\"Nova York\",\"en\":\"New York\",\"tr\":\"New York\",\"cs\":\"New York\",\"ja\":\"ニューヨーク\",\"el\":\"Νέα Υόρκη\",\"kn\":\"ನ್ಯೂಯೊರ್ಕ್\",\"is\":\"Nýja Jórvík\"},\"lat\":40.7127281,\"lon\":-74.0060152,\"country\":\"US\",\"state\":\"New York\"}]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=fca1ee0d8fe311426b14aae80fdb3c2d&lat=40.7127281&lon=-74.0060152",
+          "status": 200,
+          "body": "{\"coord\":{\"lon\":-74.006,\"lat\":40.7128},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01n\"}],\"base\":\"stations\",\"main\":{\"temp\":48,\"feels_like\":43.84,\"temp_min\":43.29,\"temp_max\":49.98,\"pressure\":1022,\"humidity\":62,\"sea_level\":1022,\"grnd_level\":1020},\"visibility\":10000,\"wind\":{\"speed\":9.22,\"deg\":330},\"clouds\":{\"all\":0},\"dt\":1762063514,\"sys\":{\"type\":1,\"id\":4610,\"country\":\"US\",\"sunrise\":1762082862,\"sunset\":1762120282},\"timezone\":-18000,\"id\":5128581,\"name\":\"New York\",\"cod\":200}"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=40.7127281&lon=-74.0060152&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 200,
+          "body": "{\"cod\":\"200\",\"message\":0,\"cnt\":40,\"list\":[{\"dt\":1762074000,\"main\":{\"temp\":48.34,\"feels_like\":46.08,\"temp_min\":48.34,\"temp_max\":48.79,\"pressure\":1023,\"sea_level\":1023,\"grnd_level\":1022,\"humidity\":61,\"temp_kf\":-0.25},\"weather\":[{\"id\":804,\"main\":\"Clouds\",\"description\":\"overcast clouds\",\"icon\":\"04n\"}],\"clouds\":{\"all\":98},\"wind\":{\"speed\":5.32,\"deg\":314,\"gust\":12.55},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"n\"},\"dt_txt\":\"2025-11-02 09:00:00\"},{\"dt\":1762084800,\"main\":{\"temp\":47.91,\"feels_like\":45.9,\"temp_min\":47.8,\"temp_max\":47.91,\"pressure\":1025,\"sea_level\":1025,\"grnd_level\":1024,\"humidity\":60,\"temp_kf\":0.06},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"clouds\":{\"all\":70},\"wind\":{\"speed\":4.81,\"deg\":336,\"gust\":10.45},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 12:00:00\"},{\"dt\":1762095600,\"main\":{\"temp\":55.22,\"feels_like\":52.75,\"temp_min\":55.22,\"temp_max\":55.22,\"pressure\":1027,\"sea_level\":1027,\"grnd_level\":1025,\"humidity\":49,\"temp_kf\":0},\"weather\":[{\"id\":801,\"main\":\"Clouds\",\"description\":\"few clouds\",\"icon\":\"02d\"}],\"clouds\":{\"all\":11},\"wind\":{\"speed\":4.12,\"deg\":298,\"gust\":6.62},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 15:00:00\"},{\"dt\":1762106400,\"main\":{\"temp\":60.4,\"feels_like\":58.03,\"temp_min\":60.4,\"temp_max\":60.4,\"pressure\":1025,\"sea_level\":1025,\"grnd_level\":1024,\"humidity\":40,\"temp_kf\":0},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"clouds\":{\"all\":9},\"wind\":{\"speed\":4.99,\"deg\":245,\"gust\":8.97},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 18:00:00\"},{\"dt\":1762117200,\"main\":{\"temp\":58.75,\"feels_like\":56.44,\"temp_min\":58.75,\"temp_max\":58.75,\"pressure\":1025,\"sea_level\":1025,\"grnd_level\":1023,\"humidity\":45,\"temp_kf\":0},\"weather\":[{\"id\":800,\"main\":\"Clear\",\"description\":\"clear sky\",\"icon\":\"01d\"}],\"clouds\":{\"all\":9},\"wind\":{\"speed\":4.94,\"deg\":209,\"gust\":7.96},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 21:00:00\"},{\"dt\":1...[truncated]"
+        },
+        {
+          "url": "https://api.weather.gov//points/40.7127281,-74.0060152",
+          "status": 301,
+          "body": "<non-text response: Response body is unavailable for redirect responses>"
+        },
+        {
+          "url": "https://api.weather.gov/points/40.7127,-74.006",
+          "status": 200,
+          "body": "{\n    \"@context\": [\n        \"https://geojson.org/geojson-ld/geojson-context.jsonld\",\n        {\n            \"@version\": \"1.1\",\n            \"wx\": \"https://api.weather.gov/ontology#\",\n            \"s\": \"https://schema.org/\",\n            \"geo\": \"http://www.opengis.net/ont/geosparql#\",\n            \"unit\": \"http://codes.wmo.int/common/unit/\",\n            \"@vocab\": \"https://api.weather.gov/ontology#\",\n            \"geometry\": {\n                \"@id\": \"s:GeoCoordinates\",\n                \"@type\": \"geo:wktLiteral\"\n            },\n            \"city\": \"s:addressLocality\",\n            \"state\": \"s:addressRegion\",\n            \"distance\": {\n                \"@id\": \"s:Distance\",\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"bearing\": {\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"value\": {\n                \"@id\": \"s:value\"\n            },\n            \"unitCode\": {\n                \"@id\": \"s:unitCode\",\n                \"@type\": \"@id\"\n            },\n            \"forecastOffice\": {\n                \"@type\": \"@id\"\n            },\n            \"forecastGridData\": {\n                \"@type\": \"@id\"\n            },\n            \"publicZone\": {\n                \"@type\": \"@id\"\n            },\n            \"county\": {\n                \"@type\": \"@id\"\n            }\n        }\n    ],\n    \"id\": \"https://api.weather.gov/points/40.7127,-74.006\",\n    \"type\": \"Feature\",\n    \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -74.006,\n            40.7127\n        ]\n    },\n    \"properties\": {\n        \"@id\": \"https://api.weather.gov/points/40.7127,-74.006\",\n        \"@type\": \"wx:Point\",\n        \"cwa\": \"OKX\",\n        \"forecastOffice\": \"https://api.weather.gov/offices/OKX\",\n        \"gridId\": \"OKX\",\n        \"gridX\": 33,\n        \"gridY\": 35,\n        \"forecast\": \"https://api.weather.gov/gridpoints/OKX/33,35/forecast\",\n        \"forecastHourly\": \"https://api.weather.gov/gridpoints/OKX/33,35/forecast/hourly\",\n        \"forecastGridData\": \"https://api.w...[truncated]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=40.7127281&lon=-74.0060152&exclude=minutely,hourly,alerts&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 401,
+          "body": "{\"cod\":401, \"message\": \"Invalid API key. Please see https://openweathermap.org/faq#error401 for more info.\"}"
+        },
+        {
+          "url": "https://api.weather.gov//alerts/active/zone/NYZ072",
+          "status": 200,
+          "body": "{\n    \"@context\": {\n        \"@version\": \"1.1\"\n    },\n    \"type\": \"FeatureCollection\",\n    \"features\": [],\n    \"title\": \"Current watches, warnings, and advisories for New York (Manhattan) (NYZ072) NY\",\n    \"updated\": \"2025-11-01T04:00:00+00:00\"\n}"
+        }
+      ],
+      "screenshot": "/Users/benjaminkeller/Desktop/App Projects/Weather-Web-App/tools/screenshots/New_York__NY.png",
+      "pageCity": "New York, NY",
+      "pageTemp": "48°F",
+      "dailyItemsRendered": 7
+    },
+    {
+      "city": "Cleveland, OH",
+      "timestamp": "2025-11-02T06:08:40.293Z",
+      "console": [
+        {
+          "type": "console",
+          "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+          "args": []
+        },
+        {
+          "type": "console",
+          "text": "OneCall daily data unavailable: 401",
+          "args": [
+            "JSHandle:OneCall daily data unavailable:",
+            "JSHandle:401"
+          ]
+        }
+      ],
+      "network": [
+        {
+          "url": "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=fca1ee0d8fe311426b14aae80fdb3c2d&q=Cleveland%2C%20OH%2CUS",
+          "status": 200,
+          "body": "[{\"name\":\"Cleveland\",\"local_names\":{\"en\":\"Cleveland\",\"oc\":\"Cleveland\",\"ru\":\"Кливленд\",\"ar\":\"كليفلاند\"},\"lat\":41.4996574,\"lon\":-81.6936772,\"country\":\"US\",\"state\":\"Ohio\"}]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=fca1ee0d8fe311426b14aae80fdb3c2d&lat=41.4996574&lon=-81.6936772",
+          "status": 200,
+          "body": "{\"coord\":{\"lon\":-81.6937,\"lat\":41.4997},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04n\"}],\"base\":\"stations\",\"main\":{\"temp\":43.14,\"feels_like\":38.95,\"temp_min\":40.32,\"temp_max\":44.73,\"pressure\":1021,\"humidity\":86,\"sea_level\":1021,\"grnd_level\":996},\"visibility\":10000,\"wind\":{\"speed\":6.96,\"deg\":208,\"gust\":8.66},\"clouds\":{\"all\":67},\"dt\":1762063364,\"sys\":{\"type\":1,\"id\":3455,\"country\":\"US\",\"sunrise\":1762084796,\"sunset\":1762122039},\"timezone\":-18000,\"id\":5150529,\"name\":\"Cleveland\",\"cod\":200}"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/forecast?units=imperial&lat=41.4996574&lon=-81.6936772&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 200,
+          "body": "{\"cod\":\"200\",\"message\":0,\"cnt\":40,\"list\":[{\"dt\":1762074000,\"main\":{\"temp\":42.37,\"feels_like\":39.65,\"temp_min\":40.8,\"temp_max\":42.37,\"pressure\":1021,\"sea_level\":1021,\"grnd_level\":996,\"humidity\":81,\"temp_kf\":0.87},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04n\"}],\"clouds\":{\"all\":54},\"wind\":{\"speed\":4.47,\"deg\":185,\"gust\":5.7},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"n\"},\"dt_txt\":\"2025-11-02 09:00:00\"},{\"dt\":1762084800,\"main\":{\"temp\":40.98,\"feels_like\":38.79,\"temp_min\":39.9,\"temp_max\":40.98,\"pressure\":1023,\"sea_level\":1023,\"grnd_level\":998,\"humidity\":72,\"temp_kf\":0.6},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"clouds\":{\"all\":58},\"wind\":{\"speed\":3.65,\"deg\":183,\"gust\":4.34},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 12:00:00\"},{\"dt\":1762095600,\"main\":{\"temp\":52.34,\"feels_like\":50,\"temp_min\":52.34,\"temp_max\":52.34,\"pressure\":1025,\"sea_level\":1025,\"grnd_level\":999,\"humidity\":58,\"temp_kf\":0},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"clouds\":{\"all\":54},\"wind\":{\"speed\":3.65,\"deg\":217,\"gust\":4.56},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 15:00:00\"},{\"dt\":1762106400,\"main\":{\"temp\":54.5,\"feels_like\":51.85,\"temp_min\":54.5,\"temp_max\":54.5,\"pressure\":1024,\"sea_level\":1024,\"grnd_level\":998,\"humidity\":47,\"temp_kf\":0},\"weather\":[{\"id\":802,\"main\":\"Clouds\",\"description\":\"scattered clouds\",\"icon\":\"03d\"}],\"clouds\":{\"all\":42},\"wind\":{\"speed\":2.57,\"deg\":211,\"gust\":5.66},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 18:00:00\"},{\"dt\":1762117200,\"main\":{\"temp\":55.69,\"feels_like\":53.35,\"temp_min\":55.69,\"temp_max\":55.69,\"pressure\":1023,\"sea_level\":1023,\"grnd_level\":997,\"humidity\":51,\"temp_kf\":0},\"weather\":[{\"id\":803,\"main\":\"Clouds\",\"description\":\"broken clouds\",\"icon\":\"04d\"}],\"clouds\":{\"all\":79},\"wind\":{\"speed\":4.74,\"deg\":263,\"gust\":7.85},\"visibility\":10000,\"pop\":0,\"sys\":{\"pod\":\"d\"},\"dt_txt\":\"2025-11-02 21:00:00\"},{\"dt...[truncated]"
+        },
+        {
+          "url": "https://api.weather.gov//points/41.4996574,-81.6936772",
+          "status": 301,
+          "body": "<non-text response: Response body is unavailable for redirect responses>"
+        },
+        {
+          "url": "https://api.weather.gov/points/41.4997,-81.6937",
+          "status": 200,
+          "body": "{\n    \"@context\": [\n        \"https://geojson.org/geojson-ld/geojson-context.jsonld\",\n        {\n            \"@version\": \"1.1\",\n            \"wx\": \"https://api.weather.gov/ontology#\",\n            \"s\": \"https://schema.org/\",\n            \"geo\": \"http://www.opengis.net/ont/geosparql#\",\n            \"unit\": \"http://codes.wmo.int/common/unit/\",\n            \"@vocab\": \"https://api.weather.gov/ontology#\",\n            \"geometry\": {\n                \"@id\": \"s:GeoCoordinates\",\n                \"@type\": \"geo:wktLiteral\"\n            },\n            \"city\": \"s:addressLocality\",\n            \"state\": \"s:addressRegion\",\n            \"distance\": {\n                \"@id\": \"s:Distance\",\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"bearing\": {\n                \"@type\": \"s:QuantitativeValue\"\n            },\n            \"value\": {\n                \"@id\": \"s:value\"\n            },\n            \"unitCode\": {\n                \"@id\": \"s:unitCode\",\n                \"@type\": \"@id\"\n            },\n            \"forecastOffice\": {\n                \"@type\": \"@id\"\n            },\n            \"forecastGridData\": {\n                \"@type\": \"@id\"\n            },\n            \"publicZone\": {\n                \"@type\": \"@id\"\n            },\n            \"county\": {\n                \"@type\": \"@id\"\n            }\n        }\n    ],\n    \"id\": \"https://api.weather.gov/points/41.4997,-81.6937\",\n    \"type\": \"Feature\",\n    \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n            -81.6937,\n            41.4997\n        ]\n    },\n    \"properties\": {\n        \"@id\": \"https://api.weather.gov/points/41.4997,-81.6937\",\n        \"@type\": \"wx:Point\",\n        \"cwa\": \"CLE\",\n        \"forecastOffice\": \"https://api.weather.gov/offices/CLE\",\n        \"gridId\": \"CLE\",\n        \"gridX\": 83,\n        \"gridY\": 65,\n        \"forecast\": \"https://api.weather.gov/gridpoints/CLE/83,65/forecast\",\n        \"forecastHourly\": \"https://api.weather.gov/gridpoints/CLE/83,65/forecast/hourly\",\n        \"forecastGridData\": \"https://ap...[truncated]"
+        },
+        {
+          "url": "https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=41.4996574&lon=-81.6936772&exclude=minutely,hourly,alerts&appid=fca1ee0d8fe311426b14aae80fdb3c2d",
+          "status": 401,
+          "body": "{\"cod\":401, \"message\": \"Invalid API key. Please see https://openweathermap.org/faq#error401 for more info.\"}"
+        },
+        {
+          "url": "https://api.weather.gov//alerts/active/zone/OHZ011",
+          "status": 200,
+          "body": "{\n    \"@context\": {\n        \"@version\": \"1.1\"\n    },\n    \"type\": \"FeatureCollection\",\n    \"features\": [],\n    \"title\": \"Current watches, warnings, and advisories for Cuyahoga (OHZ011) OH\",\n    \"updated\": \"2025-10-27T13:00:00+00:00\"\n}"
+        }
+      ],
+      "screenshot": "/Users/benjaminkeller/Desktop/App Projects/Weather-Web-App/tools/screenshots/Cleveland__OH.png",
+      "pageCity": "Cleveland, OH",
+      "pageTemp": "43°F",
+      "dailyItemsRendered": 7
+    }
+  ]
+}

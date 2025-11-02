@@ -12,6 +12,23 @@
         <div class="severe-alert-banner" style="display: none;" role="alert" aria-live="assertive">
         </div>
 
+        <!-- One Call failure toast (hidden by default) -->
+        <div class="onecall-toast" id="onecall-toast" role="alert" aria-live="polite" style="display:none;">
+            <span class="onecall-msg">Detailed daily data unavailable.</span>
+            <div class="onecall-actions">
+                <button id="onecall-retry" class="onecall-btn">Retry</button>
+                <button id="onecall-close" class="onecall-btn close">✕</button>
+            </div>
+        </div>
+
+        <!-- Runtime API key override for testing (small, reversible) -->
+        <div id="key-override" class="key-override" aria-hidden="false">
+            <input id="owm-key-input" class="owm-key-input" placeholder="Paste OpenWeather API key" aria-label="OpenWeatherMap API key" />
+            <button id="owm-key-save" class="btn small">Save</button>
+            <button id="owm-key-clear" class="btn small ghost">Clear</button>
+            <span id="owm-key-indicator" class="key-indicator" aria-hidden="true"></span>
+        </div>
+
 
         <div class="search">
           <input type="text" id="city-input" placeholder="Enter city, State, or Zip" spellcheck="false">
@@ -23,12 +40,19 @@
             </button>
         </div>
 
-        <div class="saved-cities-container">
-            <button class="saved-city-tag" data-city-name="New York">New York</button>
-            <button class="saved-city-tag" data-city-name="London">London</button>
+        <div class="saved-cities-container">   
+
         </div>
         
         <div class="weather" role="region" aria-label="Current Weather Details">
+
+            <!-- Layout toggle: enhanced icon + tooltip -->
+            <div class="layout-controls" style="position: absolute; top: 18px; right: 24px;">
+                <button id="layout-toggle" class="layout-toggle" aria-pressed="false" aria-label="Toggle layout" title="Toggle layout">
+                    <span class="lt-icon" aria-hidden="true">🗂️</span>
+                    <span class="lt-tooltip">Toggle Cards/Stack</span>
+                </button>
+            </div>
             
             <div class="current-weather-main">
                 <img src="images/clear.png" class="weather-icon" data-weather-icon alt="Current weather condition icon">
@@ -38,15 +62,6 @@
                 
                 </div>
             
-            <div class="daily-forecast" role="list" aria-label="7 Day Forecast">
-                <h3>7-Day Forecast</h3>
-                <div class="daily-item">
-                    <p class="day">Mon</p>
-                    <img src="images/rain.png" alt="Rain icon">
-                    <p class="daily-temps">Hi 65&deg; / Lo 50&deg;</p>
-                </div>
-            </div>
-
             <div class="details" data-details-full-width>
                 <figure class="col">
                     <img src="images/humidity.png" alt="Droplet icon for humidity">
@@ -75,7 +90,17 @@
                     </div>
             </div>
 
-        </div> 
+            <!-- Daily forecast moved to appear immediately after hourly as a horizontal scroller -->
+            <div class="daily-forecast" role="list" aria-label="7 Day Forecast">
+                <h3>7-Day Forecast</h3>
+                <div class="daily-fallback" style="display:none;">Detailed daily data unavailable — using fallback.</div>
+                <div class="daily-scroll-container">
+                    <!-- JS will populate daily items here as horizontal cards -->
+                </div>
+            </div>
+
+        </div>
+        <div class="loading" data-loading-state>Fetching weather data... </div> 
         <div class="error" data-error-msg>Invalid city name or error fetching data.</div>
     </div>
     

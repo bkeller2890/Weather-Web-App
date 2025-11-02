@@ -5,7 +5,17 @@ const NWS_USER_AGENT = "WeatherApp/v1.0 (b.keller2890@gmail.com)";
 
 // OpenWeatherMap API Key and Base URLs
 
-const apiKey = "fca1ee0d8fe311426b14aae80fdb3c2d";
+// Default API key (kept for local dev). It can be overridden by setting
+// window.__OWM_API_KEY in the page (used by automated tests) so you don't
+// have to bake a secret into source control.
+let apiKey = "fca1ee0d8fe311426b14aae80fdb3c2d";
+try {
+    if (typeof window !== 'undefined' && window.__OWM_API_KEY) {
+        apiKey = window.__OWM_API_KEY;
+    }
+} catch (e) {
+    // ignore in non-browser contexts
+}
 
 const geoApiUrl = "https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=" + apiKey + "&q="; 
 const weatherApiUrl = "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=" + apiKey + "&";
@@ -18,6 +28,7 @@ const savedCitiesContainer = document.querySelector(".saved-cities-container");
 const weatherIcon = document.querySelector(".weather-icon");
 const dailyForecastContainer = document.querySelector(".daily-forecast");
 const hourlyForecastContainer = document.querySelector(".hourly-scroll-container");
+const loadingIndicator = document.querySelector(".loading");
 
 // Severe Weather Alert Banner DOM Element: 
 
@@ -135,9 +146,20 @@ function getCurrentLocationWeather() {
 
 // Function to handle clicks on the saved cities container
 function handleSavedCityClick(event) {
-    const cityTag = event.target.closest('.saved-city-tag');
-    if (cityTag) {
-        const cityName = cityTag.getAttribute('data-city-name');
+    const target = event.target;
+    if(target.classList.contains('delete-city-btn')){
+        const cityName = target.getAttribute('data-city-name');
+        if(cityName){
+            deleteCity(cityName);
+        }
+        return; 
+    }
+
+    const cityTagElement = target.closest('.saved-city-tag');
+    const cityNameLink = target.closest('.city-name-link');
+
+    if (cityNameLink) {
+        const cityName = cityNameLink.getAttribute('data-city-name');
         if (cityName) {
             searchBox.value = cityName;
             checkWeather(cityName);
@@ -303,7 +325,15 @@ function getWeatherIcon(condition) {
 
 function displayForecasts(data) {
     hourlyForecastContainer.innerHTML = ''; // Clear old content
-    dailyForecastContainer.innerHTML = '<h3>7-Day Forecast</h3>'; // Clear old content, keep header
+    // Keep the outer container intact (don't overwrite inner `.daily-scroll-container` element)
+    if (dailyForecastContainer) {
+        const header = dailyForecastContainer.querySelector('h3');
+        if (!header) {
+            const h = document.createElement('h3');
+            h.textContent = '7-Day Forecast';
+            dailyForecastContainer.insertBefore(h, dailyForecastContainer.firstChild);
+        }
+    }
 
     const hourlyList = data.list.slice(0, 8); // Take the next 8 intervals (24 hours)
     const dailyMap = new Map(); // Use a map to get one entry per day
@@ -359,24 +389,295 @@ function displayForecasts(data) {
         }
     });
 
-    // Insert the daily items into the container
-    Object.keys(dayData).forEach(dayKey => {
-        const day = dayData[dayKey];
+    // Insert 7 daily cards (today + next 6). Use dayData when available, otherwise fall back to dailyMap or placeholder.
+    const dailyScroll = document.querySelector('.daily-scroll-container');
+    if (dailyScroll) {
+        dailyScroll.innerHTML = '';
+    }
+
+    const today = new Date();
+    const next7 = Array.from({ length: 7 }, (_, i) => new Date(today.getTime() + i * 86400000))
+        .map(d => d.toLocaleDateString('en-US', { weekday: 'short' }));
+
+    next7.forEach(dayKey => {
+        let day = dayData[dayKey] || (dailyMap.has(dayKey) ? dailyMap.get(dayKey) : null);
+
+        if (!day) {
+            // Placeholder if we don't have data for this day
+            day = { day: dayKey, hi: '--', lo: '--', iconSrc: 'images/clear.png' };
+        }
+
+        const hiText = (typeof day.hi === 'number') ? `${day.hi}` : day.hi;
+        const loText = (typeof day.lo === 'number') ? `${day.lo}` : day.lo;
+
         const dailyItemHTML = `
             <div class="daily-item">
                 <p class="day">${dayKey}</p>
                 <img src="${day.iconSrc}" alt="Weather icon">
-                <p class="daily-temps">Hi ${day.hi}&deg; / Lo ${day.lo}&deg;</p>
+                <p class="daily-temps">Hi ${hiText}&deg;<br>Lo ${loText}&deg;</p>
             </div>
         `;
-        dailyForecastContainer.innerHTML += dailyItemHTML;
+
+        if (dailyScroll) dailyScroll.innerHTML += dailyItemHTML;
     });
+}
+
+/**
+ * Renders 7-day forecast from One Call API data into the .daily-scroll-container
+ * @param {Object} oneCallData - The One Call API JSON response
+ */
+function displayDailyOneCall(oneCallData) {
+    if (!oneCallData || !oneCallData.daily) return;
+
+    const dailyScroll = document.querySelector('.daily-scroll-container');
+    if (!dailyScroll) return;
+
+    dailyScroll.innerHTML = ''; // clear previous
+
+    // Take up to 7 days (One Call returns today + 7)
+    const days = oneCallData.daily.slice(0, 7);
+
+    days.forEach(d => {
+        const date = new Date(d.dt * 1000);
+        const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dateLabel = date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+        const hi = Math.round(d.temp.max);
+        const lo = Math.round(d.temp.min);
+        const precip = (typeof d.pop === 'number') ? Math.round(d.pop * 100) : null;
+        const iconMain = (d.weather && d.weather[0] && d.weather[0].main) ? d.weather[0].main : 'Clear';
+        const iconSrc = getWeatherIcon(iconMain);
+
+        const precipHtml = precip !== null ? `<p class="precip">${precip}%</p>` : '';
+
+        const sunrise = d.sunrise ? new Date(d.sunrise * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+        const sunset = d.sunset ? new Date(d.sunset * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+
+        const html = `
+            <div class="daily-item">
+                <p class="day">${dayLabel}</p>
+                <p class="date">${dateLabel}</p>
+                <img src="${iconSrc}" alt="${iconMain} icon">
+                <p class="daily-temps">Hi ${hi}°<br>Lo ${lo}°</p>
+                ${precipHtml}
+                <p class="sun">☀️ ${sunrise} / 🌙 ${sunset}</p>
+            </div>
+        `;
+
+        dailyScroll.innerHTML += html;
+    });
+}
+
+// NEW: LocalStorage Functions for Saved Cities
+// ----------------------------------------------------
+
+// Layout preference: stack vs cards
+function getLayoutPref() {
+    try { return localStorage.getItem('layoutPref') || 'stack'; } catch (e) { return 'stack'; }
+}
+
+function setLayoutPref(pref) {
+    try { localStorage.setItem('layoutPref', pref); } catch (e) {}
+}
+
+function applyLayout() {
+    const pref = getLayoutPref();
+    const weatherEl = document.querySelector('.weather');
+    if (!weatherEl) return;
+    if (pref === 'stack') {
+        weatherEl.classList.add('stack-vertical');
+    } else {
+        weatherEl.classList.remove('stack-vertical');
+    }
+    const toggle = document.getElementById('layout-toggle');
+    if (toggle) {
+        const pressed = pref === 'stack';
+        toggle.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        toggle.textContent = pressed ? 'Stack' : 'Cards';
+    }
+}
+
+// Wire up the layout toggle button when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    applyLayout();
+    const btn = document.getElementById('layout-toggle');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            const current = getLayoutPref();
+            const next = current === 'stack' ? 'cards' : 'stack';
+            setLayoutPref(next);
+            applyLayout();
+        });
+    }
+    // wire up One Call toast actions
+    const retryBtn = document.getElementById('onecall-retry');
+    const closeBtn = document.getElementById('onecall-close');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', () => {
+            const toast = document.getElementById('onecall-toast');
+            if (toast) toast.style.display = 'none';
+            // attempt to re-run One Call for the currently displayed location
+            const cityText = document.querySelector('.city') ? document.querySelector('.city').textContent : null;
+            if (cityText) {
+                // trigger checkWeather using the shown city name
+                checkWeather(cityText);
+            }
+        });
+    }
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            const toast = document.getElementById('onecall-toast');
+            if (toast) toast.style.display = 'none';
+        });
+    }
+
+    // --- Runtime API Key Override UI Wiring ---
+    const keyInput = document.getElementById('owm-key-input');
+    const keySave = document.getElementById('owm-key-save');
+    const keyClear = document.getElementById('owm-key-clear');
+    const keyIndicator = document.getElementById('owm-key-indicator');
+
+    function updateKeyIndicator() {
+        const k = (() => { try { return localStorage.getItem('owm_key_override'); } catch (e) { return null; } })();
+        if (k) {
+            keyIndicator.textContent = 'Override active';
+            keyIndicator.classList.add('active');
+            if (keyInput) keyInput.value = k;
+            try { window.__OWM_API_KEY = k; apiKey = k; } catch (e) {}
+        } else {
+            keyIndicator.textContent = '';
+            keyIndicator.classList.remove('active');
+            if (keyInput) keyInput.value = '';
+            try { if (window.__OWM_API_KEY) delete window.__OWM_API_KEY; } catch (e) {}
+            // Reset apiKey to default baked-in value (left as original variable)
+            apiKey = apiKey || apiKey;
+        }
+    }
+
+    // Load persisted override on start
+    updateKeyIndicator();
+
+    if (keySave) {
+        keySave.addEventListener('click', () => {
+            const val = keyInput ? keyInput.value.trim() : '';
+            if (!val) return;
+            try { localStorage.setItem('owm_key_override', val); } catch (e) {}
+            try { window.__OWM_API_KEY = val; apiKey = val; } catch (e) {}
+            updateKeyIndicator();
+        });
+    }
+
+    if (keyClear) {
+        keyClear.addEventListener('click', () => {
+            try { localStorage.removeItem('owm_key_override'); } catch (e) {}
+            try { delete window.__OWM_API_KEY; } catch (e) {}
+            // reload the page to ensure all fetch URL strings re-evaluate if needed
+            updateKeyIndicator();
+        });
+    }
+});
+
+/**
+ * Retrieves the list of saved cities from localStorage.
+ * @returns {Array} An array of city names.
+ */
+function getSavedCities() {
+    // Retrieve the JSON string, or '[]' if nothing is saved yet
+    const citiesJson = localStorage.getItem('savedCities');
+    return citiesJson ? JSON.parse(citiesJson) : [];
+}
+
+/**
+ * Renders the saved city tags in the UI.
+ */
+function renderSavedCities() {
+    const cities = getSavedCities();
+    if (!savedCitiesContainer) return; // Safety check
+    savedCitiesContainer.innerHTML = ''; // Clear existing tags
+
+    cities.forEach(city => {
+        const tag = document.createElement('span');
+        tag.classList.add('saved-city-tag');
+        // Use the data attribute for the JS click handler
+
+        // 1. City Name Span (Clickable to SEARCH)
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = city;
+        nameSpan.setAttribute('data-city-name', city);
+        nameSpan.classList.add('city-name-link'); // New class to distinguish the clickable name
+        
+        // 2. Delete Button Span (Clickable to DELETE)
+        const deleteBtn = document.createElement('span');
+        deleteBtn.innerHTML = '&#x2715;'; // Unicode '✕' (HEAVY MULTIPLICATION X)
+        deleteBtn.classList.add('delete-city-btn');
+        deleteBtn.setAttribute('data-city-name', city);
+
+
+        tag.appendChild(nameSpan);
+        tag.appendChild(deleteBtn);
+        savedCitiesContainer.appendChild(tag);
+    });
+}
+
+/**
+ * Saves a new city name to localStorage, ensuring no duplicates and a maximum list size.
+ * @param {string} cityName - The name of the city to save (e.g., "New York").
+ */
+function saveCity(cityName) {
+    let cities = getSavedCities();
+    
+    // 1. Sanitize input (optional: convert to Title Case for consistent display)
+    const normalizedCity = cityName.trim().replace(/\b\w/g, l => l.toUpperCase());
+
+    // 2. Remove the city if it already exists (to push it to the front/top)
+    cities = cities.filter(c => c !== normalizedCity);
+
+    // 3. Add the new city to the beginning of the array
+    cities.unshift(normalizedCity);
+
+    // 4. Limit the number of saved cities (e.g., max 5)
+    const maxCities = 5;
+    if (cities.length > maxCities) {
+        cities = cities.slice(0, maxCities);
+    }
+    
+    // 5. Save the updated list back to localStorage
+    localStorage.setItem('savedCities', JSON.stringify(cities));
+
+    // 6. Update the UI
+    renderSavedCities();
+}
+
+// ----------------------------------------------------
+// END NEW: LocalStorage Functions
+
+/**
+ * Deletes a specified city from localStorage and updates the UI.
+ * @param {string} cityName - The name of the city to delete.
+ */
+function deleteCity(cityName) {
+    let cities = getSavedCities();
+    
+    // Normalize the city name for comparison
+    const normalizedCity = cityName.trim().replace(/\b\w/g, l => l.toUpperCase());
+    
+    // Filter out the city to be deleted
+    cities = cities.filter(c => c !== normalizedCity);
+    
+    // Save the updated list back to localStorage
+    localStorage.setItem('savedCities', JSON.stringify(cities));
+    
+    // Update the UI
+    renderSavedCities();
 }
 
 // Function signature: input is for text search, lat/lon for coordinate search
 async function checkWeather(input, lat = null, lon = null) {
     document.querySelector(".weather").classList.remove("active");
     document.querySelector(".error").style.display = "none";
+
+    if(loadingIndicator){
+        loadingIndicator.style.display = "block";
+    }
 
     let locationName, stateName = null, countryCode; // 🎯 FIX 1: Declare location variables here
 
@@ -417,6 +718,10 @@ async function checkWeather(input, lat = null, lon = null) {
         if (!locationData) {
             document.querySelector(".error").style.display = "block";
             document.querySelector(".city").innerHTML = "Location Not Found";
+            
+            if (loadingIndicator) {
+                loadingIndicator.style.display = "none";
+            }
             return; 
         }
 
@@ -472,6 +777,40 @@ async function checkWeather(input, lat = null, lon = null) {
         displayForecasts(forecastData); 
     }
 
+    // Fetch 7-day daily forecast using One Call API and render it
+    try {
+        const oneCallUrl = `https://api.openweathermap.org/data/2.5/onecall?units=imperial&lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=${apiKey}`;
+        const oneCallResp = await fetch(oneCallUrl);
+        const dailyFallbackEl = document.querySelector('.daily-fallback');
+        if (oneCallResp.ok) {
+            const oneCallData = await oneCallResp.json();
+            // Render 7-day daily forecast (if function exists below)
+            if (typeof displayDailyOneCall === 'function') {
+                displayDailyOneCall(oneCallData);
+            }
+            if (dailyFallbackEl) dailyFallbackEl.style.display = 'none';
+        } else {
+            console.warn('OneCall daily data unavailable:', oneCallResp.status);
+            if (dailyFallbackEl) dailyFallbackEl.style.display = 'block';
+            const toast = document.getElementById('onecall-toast');
+            if (toast) {
+                const msg = toast.querySelector('.onecall-msg');
+                if (msg) msg.textContent = `Detailed daily data unavailable (code ${oneCallResp.status}).`;
+                toast.style.display = 'flex';
+            }
+        }
+    } catch (e) {
+        console.warn('OneCall fetch error:', e.message);
+        const dailyFallbackEl = document.querySelector('.daily-fallback');
+        if (dailyFallbackEl) dailyFallbackEl.style.display = 'block';
+        const toast = document.getElementById('onecall-toast');
+        if (toast) {
+            const msg = toast.querySelector('.onecall-msg');
+            if (msg) msg.textContent = `Detailed daily data unavailable (error).`;
+            toast.style.display = 'flex';
+        }
+    }
+
     // Handle NWS Severe Weather Alerts
     if(countryCode === 'US') {
         handleNwsAlerts(lat, lon);   
@@ -486,6 +825,9 @@ async function checkWeather(input, lat = null, lon = null) {
     if (weatherResponse.status !== 200) {
         document.querySelector(".error").style.display = "block";
         document.querySelector(".city").innerHTML = "Weather Data Unavailable";
+        if (loadingIndicator){
+            loadingIndicator.style.display = "none";
+        }
         return;
     }
 
@@ -494,6 +836,11 @@ async function checkWeather(input, lat = null, lon = null) {
 
     // --- PART 3: Display Data (Relies on initialized locationName, stateName, countryCode) ---
     
+    // 🔑 NEW: Save the city name after successful data fetch and before displaying
+    if (locationName && locationName !== "Coordinates" && locationName !== "Your Location") {
+        saveCity(locationName);
+    }
+
     // Construct the Location Display:
     // 🎯 FIX 3: Initialize locationDisplay properly, especially for the Geolocation case.
     // If locationName is undefined (due to reverse geocoding failure), set a default.
@@ -590,6 +937,11 @@ async function checkWeather(input, lat = null, lon = null) {
     // --- PART 4: Final UI Updates ---
     document.querySelector(".error").style.display = "none";
     document.querySelector(".weather").classList.add("active");
+    
+    if(loadingIndicator){
+        loadingIndicator.style.display = "none";
+    } 
+
 }
 
 
@@ -613,3 +965,7 @@ locationBtn.addEventListener("click", getCurrentLocationWeather);
 
 // Attach the listener
 savedCitiesContainer.addEventListener('click', handleSavedCityClick);
+
+// NEW: Load saved cities when the script starts
+
+renderSavedCities();

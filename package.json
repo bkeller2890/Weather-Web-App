@@ -1,0 +1,23 @@
+{
+  "name": "weather-web-app",
+  "version": "1.0.0",
+  "description": "A Simple Web App using OpenWeatherMap API",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bkeller2890/Weather-Web-App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bkeller2890/Weather-Web-App/issues"
+  },
+  "homepage": "https://github.com/bkeller2890/Weather-Web-App#readme",
+  "dependencies": {
+    "puppeteer": "^21.11.0"
+  }
+}
