@@ -360,6 +360,40 @@ body {
     margin-top: 6px;
 }
 
+/* Placeholder styling for padded days when data is missing */
+.daily-item.placeholder {
+    background: rgba(255,255,255,0.02);
+    color: rgba(255,255,255,0.65);
+    border: 1px dashed rgba(255,255,255,0.06);
+    opacity: 0.85;
+}
+
+.daily-item.placeholder img {
+    filter: grayscale(80%) brightness(90%);
+    opacity: 0.7;
+}
+
+.daily-item .no-data {
+    font-size: 12px;
+    color: #f0e6e6;
+    opacity: 0.8;
+    margin-top: 6px;
+}
+
+/* Small info icon shown next to the forecast header when fallback is active */
+.fallback-info {
+    background: transparent;
+    border: none;
+    color: #9ec5ff;
+    margin-left: 8px;
+    font-size: 14px;
+    cursor: default;
+}
+
+.fallback-info[title] {
+    position: relative;
+}
+
 /* Slight typography tweak to make headings pop */
 .hourly-forecast h3, .daily-forecast h3 {
     color: #f7fbff;

@@ -290,7 +290,7 @@ function displayForecasts(data) {
         const header = dailyForecastContainer.querySelector('h3');
         if (!header) {
             const h = document.createElement('h3');
-            h.textContent = '7-Day Forecast';
+            h.textContent = '5-Day Forecast';
             dailyForecastContainer.insertBefore(h, dailyForecastContainer.firstChild);
         }
     }
@@ -331,18 +331,18 @@ function displayForecasts(data) {
         }
     });
 
-    // Insert 7 daily cards (today + next 6).
+    // Insert 5 daily cards (today + next 4).
     const dailyScroll = document.querySelector('.daily-scroll-container');
     if (!dailyScroll) return;
 
     dailyScroll.innerHTML = ''; // Clear old daily content
 
     const today = new Date();
-    // Generate the next 7 days' keys
-    const next7 = Array.from({ length: 7 }, (_, i) => new Date(today.getTime() + i * 86400000))
+    // Generate the next 5 days' keys
+    const next5 = Array.from({ length: 5 }, (_, i) => new Date(today.getTime() + i * 86400000))
         .map(d => d.toLocaleDateString('en-US', { weekday: 'short' }));
 
-    next7.forEach(dayKey => {
+    next5.forEach(dayKey => {
         let day = dayData[dayKey] || { day: dayKey, hi: '--', lo: '--', iconSrc: 'images/clear.png' };
 
         const hiText = (typeof day.hi === 'number') ? `${day.hi}` : day.hi;
@@ -372,32 +372,71 @@ function displayDailyOneCall(oneCallData) {
 
     dailyScroll.innerHTML = ''; // clear previous (5-day fallback)
 
-    // Take up to 7 days (One Call returns today + 7)
-    const days = oneCallData.daily.slice(0, 7);
+    // Take up to 5 days (prefer One Call's daily but fall back and pad to 5 days)
+    const requestedDays = 5; // today + next 4
+    const provided = Array.isArray(oneCallData.daily) ? oneCallData.daily.slice(0, requestedDays) : [];
 
-    days.forEach(d => {
+    if (provided.length < requestedDays) {
+        console.warn(`One Call returned ${provided.length} daily entries; expected ${requestedDays}. UI will pad missing days with placeholders.`);
+    }
+
+    // Build an array of length requestedDays containing either the real day object or a padding marker
+    const days = [];
+    const startDate = new Date();
+    for (let i = 0; i < requestedDays; i++) {
+        if (i < provided.length) {
+            days.push({ data: provided[i], pad: false });
+        } else {
+            // create a minimal placeholder with a dt so labels still render consistently
+            const padDate = new Date(startDate.getTime() + i * 86400000);
+            days.push({ data: { dt: Math.floor(padDate.getTime() / 1000) }, pad: true });
+        }
+    }
+
+    days.forEach(item => {
+        const d = item.data;
+        const isPad = item.pad === true;
         const date = new Date(d.dt * 1000);
         const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short' });
         const dateLabel = date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
-        const hi = Math.round(d.temp.max);
-        const lo = Math.round(d.temp.min);
-        const precip = (typeof d.pop === 'number') ? Math.round(d.pop * 100) : null;
-        const iconMain = (d.weather && d.weather[0] && d.weather[0].main) ? d.weather[0].main : 'Clear';
-        const iconSrc = getWeatherIcon(iconMain);
+
+        let hi = '--';
+        let lo = '--';
+        let precip = null;
+        let iconSrc = 'images/clear.png';
+        let iconMain = 'Clear';
+        let sunrise = '';
+        let sunset = '';
+
+        if (!isPad && d.temp) {
+            try {
+                hi = (typeof d.temp.max === 'number') ? Math.round(d.temp.max) : '--';
+                lo = (typeof d.temp.min === 'number') ? Math.round(d.temp.min) : '--';
+            } catch (e) {
+                hi = lo = '--';
+            }
+            precip = (typeof d.pop === 'number') ? Math.round(d.pop * 100) : null;
+            iconMain = (d.weather && d.weather[0] && d.weather[0].main) ? d.weather[0].main : 'Clear';
+            iconSrc = getWeatherIcon(iconMain);
+            sunrise = d.sunrise ? new Date(d.sunrise * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+            sunset = d.sunset ? new Date(d.sunset * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+        }
 
         const precipHtml = precip !== null ? `<p class="precip">${precip}%</p>` : '';
+    const placeholderHtml = isPad ? `<p class="no-data">Detailed data unavailable</p>` : '';
 
-        const sunrise = d.sunrise ? new Date(d.sunrise * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
-        const sunset = d.sunset ? new Date(d.sunset * 1000).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+    // For placeholder cards, hide sunrise/sunset and other details to reduce clutter
+    const sunHtml = isPad ? '' : `<p class="sun">${sunrise ? `☀️ ${sunrise}` : ''} ${sunset ? `/ 🌙 ${sunset}` : ''}</p>`;
 
-        const html = `
-            <div class="daily-item">
+    const html = `
+            <div class="daily-item${isPad ? ' placeholder' : ''}">
                 <p class="day">${dayLabel}</p>
                 <p class="date">${dateLabel}</p>
                 <img src="${iconSrc}" alt="${iconMain} icon">
                 <p class="daily-temps">Hi ${hi}°<br>Lo ${lo}°</p>
                 ${precipHtml}
-                <p class="sun">☀️ ${sunrise} / 🌙 ${sunset}</p>
+                ${placeholderHtml}
+        ${sunHtml}
             </div>
         `;
 
@@ -624,6 +663,7 @@ async function checkWeather(input, lat = null, lon = null) {
 
     // Construct URLs inside the function to use the potentially overridden 'apiKey'
     const currentGeoApiUrl = `https://api.openweathermap.org/geo/1.0/direct?limit=1&appid=${apiKey}&q=`; 
+    // Use the stable data/2.5 endpoints to maximize compatibility with standard API keys
     const currentWeatherApiUrl = `https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=${apiKey}&`;
 
     // --- PART 1: Determine Coordinates and Location Details (Geocoding / Reverse Geocoding) ---
@@ -797,10 +837,13 @@ async function checkWeather(input, lat = null, lon = null) {
     // --- PART 4: Fetch Detailed Forecasts (5-Day / Hourly) and Fallback ---
     
     // First, fetch the 5-day / 3-hour forecast for the hourly data and as a daily fallback
-    const forecastResponse = await fetch(`https://api.openweathermap.org/data/2.5/forecast?units=imperial&appid=${apiKey}&lat=${lat}&lon=${lon}`);
-    const forecastData = await forecastResponse.json();
-
-    if (forecastResponse.ok) {
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?units=imperial&appid=${apiKey}&lat=${lat}&lon=${lon}`;
+    const forecastResponse = await fetch(forecastUrl);
+    if (!forecastResponse.ok) {
+        const txt = await forecastResponse.text().catch(() => '<non-text>');
+        console.error('Forecast fetch failed:', forecastResponse.status, txt, forecastUrl);
+    } else {
+        const forecastData = await forecastResponse.json();
         displayForecasts(forecastData); // Uses 5-day / 3hr data for both hourly and daily fallback
     }
 
@@ -820,16 +863,42 @@ async function checkWeather(input, lat = null, lon = null) {
     const oneCallUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,current,alerts&units=imperial&appid=${apiKey}`;
     const oneCallResponse = await fetch(oneCallUrl);
 
+    // Config: whether to render padded placeholder cards when data is missing
+    // Default to hiding placeholders per user request
+    const SHOW_PLACEHOLDERS = false; // set to true to show padded days
+
+    const df = document.querySelector('.daily-fallback');
+    const dfContainer = document.querySelector('.daily-forecast');
+
     if (oneCallResponse.ok) {
         const oneCallData = await oneCallResponse.json();
         // Overwrite the daily forecast with the superior One Call data
-        displayDailyOneCall(oneCallData); 
+        displayDailyOneCall(oneCallData);
+        // Hide the fallback indicator (if present)
+        if (df) df.style.display = 'none';
+        // Remove placeholders if configured to hide them
+        if (!SHOW_PLACEHOLDERS) {
+            const scroller = document.querySelector('.daily-scroll-container');
+            if (scroller) {
+                Array.from(scroller.querySelectorAll('.daily-item.placeholder')).forEach(el => el.remove());
+            }
+        }
+        // Set last One Call status attribute for testing/logging
+        if (dfContainer) dfContainer.setAttribute('data-last-onecall-status', `ok:${oneCallResponse.status}`);
     } else {
-        // Show a message/toast if One Call fails (e.g., if you haven't upgraded your OWM account)
+        // One Call failed: fall back to the 5-day/3hr data.
         console.warn("One Call API access failed. Using 5-day forecast fallback.");
-        const toast = document.getElementById('onecall-toast');
-        if (toast) toast.style.display = 'flex';
-        // The displayForecasts fallback function was already called in Part 4.
+        // Show a subtle inline indicator above the daily scroller
+        if (df) df.style.display = 'block';
+        // If placeholders should be hidden, remove padded placeholder cards after rendering
+        if (!SHOW_PLACEHOLDERS) {
+            const scroller = document.querySelector('.daily-scroll-container');
+            if (scroller) {
+                Array.from(scroller.querySelectorAll('.daily-item.placeholder')).forEach(el => el.remove());
+            }
+        }
+        // Set last One Call status attribute for testing/logging
+        if (dfContainer) dfContainer.setAttribute('data-last-onecall-status', `error:${oneCallResponse.status}`);
     }
 
 
